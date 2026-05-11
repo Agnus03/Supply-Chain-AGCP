@@ -1,15 +1,23 @@
 import { useState, useEffect } from 'react';
 import type { Shipment, SensorReadingRequest } from '../types';
 import { shipmentService } from '../api/shipmentService';
+import { sensorService } from '../api/sensorService';
 
 interface SensorRegisterProps {
   onSuccess: () => void;
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: 'Pendiente',
+  IN_TRANSIT: 'En tránsito',
+  DELIVERED: 'Entregado',
+  DELAYED: 'Retrasado',
+};
+
 export function SensorRegister({ onSuccess }: SensorRegisterProps) {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [loadingShipments, setLoadingShipments] = useState(true);
-  
+
   const [formData, setFormData] = useState<SensorReadingRequest>({
     shipmentId: '',
     temperatureC: null,
@@ -40,16 +48,7 @@ export function SensorRegister({ onSuccess }: SensorRegisterProps) {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/sensors/readings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-
+      await sensorService.create(formData);
       setFormData({
         shipmentId: '',
         temperatureC: null,
@@ -65,31 +64,19 @@ export function SensorRegister({ onSuccess }: SensorRegisterProps) {
     }
   };
 
-  const handleChange = (field: keyof SensorReadingRequest) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value;
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value === '' ? null : parseFloat(value),
-    }));
-  };
-
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      PENDING: 'Pendiente',
-      IN_TRANSIT: 'En tránsito',
-      DELIVERED: 'Entregado',
-      DELAYED: 'Retrasado',
+  const handleNumber =
+    (field: keyof SensorReadingRequest) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value === '' ? null : parseFloat(value),
+      }));
     };
-    return labels[status] || status;
-  };
 
   return (
     <div className="card">
-      <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem' }}>
-        Registrar Lectura
-      </h3>
+      <h3 className="card-title mb-4">Registrar Lectura</h3>
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -108,18 +95,20 @@ export function SensorRegister({ onSuccess }: SensorRegisterProps) {
             </option>
             {shipments.map((shipment) => (
               <option key={shipment.id} value={shipment.id}>
-                {shipment.id.slice(0, 8)} - {getStatusLabel(shipment.status)} ({shipment.currentLocation})
+                {shipment.id.slice(0, 8)} -{' '}
+                {STATUS_LABELS[shipment.status] || shipment.status} (
+                {shipment.currentLocation})
               </option>
             ))}
           </select>
           {shipments.length === 0 && !loadingShipments && (
-            <p style={{ fontSize: '0.875rem', color: 'var(--warning)', marginTop: '0.25rem' }}>
+            <p className="text-xs text-secondary mt-2">
               No hay envíos disponibles. Crea un envío primero.
             </p>
           )}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div className="grid-2">
           <div className="form-group">
             <label htmlFor="temperatureC">Temperatura (°C)</label>
             <input
@@ -127,11 +116,10 @@ export function SensorRegister({ onSuccess }: SensorRegisterProps) {
               type="number"
               step="0.1"
               value={formData.temperatureC ?? ''}
-              onChange={handleChange('temperatureC')}
+              onChange={handleNumber('temperatureC')}
               placeholder="25.0"
             />
           </div>
-
           <div className="form-group">
             <label htmlFor="humidityPct">Humedad (%)</label>
             <input
@@ -139,13 +127,13 @@ export function SensorRegister({ onSuccess }: SensorRegisterProps) {
               type="number"
               step="0.1"
               value={formData.humidityPct ?? ''}
-              onChange={handleChange('humidityPct')}
+              onChange={handleNumber('humidityPct')}
               placeholder="60.0"
             />
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div className="grid-2">
           <div className="form-group">
             <label htmlFor="latitude">Latitud</label>
             <input
@@ -153,11 +141,10 @@ export function SensorRegister({ onSuccess }: SensorRegisterProps) {
               type="number"
               step="0.0001"
               value={formData.latitude ?? ''}
-              onChange={handleChange('latitude')}
+              onChange={handleNumber('latitude')}
               placeholder="4.7110"
             />
           </div>
-
           <div className="form-group">
             <label htmlFor="longitude">Longitud</label>
             <input
@@ -165,23 +152,22 @@ export function SensorRegister({ onSuccess }: SensorRegisterProps) {
               type="number"
               step="0.0001"
               value={formData.longitude ?? ''}
-              onChange={handleChange('longitude')}
+              onChange={handleNumber('longitude')}
               placeholder="-74.0721"
             />
           </div>
         </div>
 
         {error && (
-          <div style={{ color: 'var(--danger)', marginBottom: '1rem' }}>
+          <div className="alert-badge alert-danger w-full mb-4" style={{ justifyContent: 'center' }}>
             {error}
           </div>
         )}
 
         <button
           type="submit"
-          className="btn btn-primary"
+          className="btn btn-primary w-full"
           disabled={loading || loadingShipments || shipments.length === 0}
-          style={{ width: '100%' }}
         >
           {loading ? 'Registrando...' : 'Registrar Lectura'}
         </button>

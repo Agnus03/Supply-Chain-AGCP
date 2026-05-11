@@ -1,10 +1,51 @@
 import { useState, useEffect } from 'react';
-import type { Shipment } from '../types';
+import type { ShipmentInfo } from '../types';
 import { shipmentService } from '../api/shipmentService';
 import { ShipmentCreate } from '../components/ShipmentCreate';
 
+const STATUS_ORDER = ['PENDING', 'IN_TRANSIT', 'DELIVERED'] as const;
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: 'Pendiente',
+  IN_TRANSIT: 'En tránsito',
+  DELIVERED: 'Entregado',
+  DELAYED: 'Retrasado',
+};
+
+function getStepIndex(status: string): number {
+  if (status === 'DELAYED') return -1;
+  return STATUS_ORDER.indexOf(status as typeof STATUS_ORDER[number]);
+}
+
+function TrackingProgress({ status }: { status: string }) {
+  const currentStep = getStepIndex(status);
+  const isDelayed = status === 'DELAYED';
+
+  return (
+    <div className="tracking-progress">
+      {STATUS_ORDER.map((step, i) => {
+        const stepClasses = ['tracking-step'];
+        if (currentStep > i) stepClasses.push('completed');
+        else if (currentStep === i) stepClasses.push('active');
+        if (isDelayed) stepClasses.push('delayed');
+
+        return (
+          <>
+            {i > 0 && <div className="tracking-line" />}
+            <div key={step} className={stepClasses.join(' ')}>
+              <span className="tracking-dot">
+                {currentStep > i ? '✓' : currentStep === i ? (isDelayed ? '!' : '●') : ''}
+              </span>
+              <span className="tracking-label">{STATUS_LABELS[step]}</span>
+            </div>
+          </>
+        );
+      })}
+    </div>
+  );
+}
+
 export function ShipmentsPage() {
-  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [shipments, setShipments] = useState<ShipmentInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -12,7 +53,7 @@ export function ShipmentsPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await shipmentService.listAll();
+      const data = await shipmentService.listAllInfo();
       setShipments(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar');
@@ -25,100 +66,121 @@ export function ShipmentsPage() {
     fetchShipments();
   }, []);
 
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      PENDING: 'Pendiente',
-      IN_TRANSIT: 'En tránsito',
-      DELIVERED: 'Entregado',
-      DELAYED: 'Retrasado',
-    };
-    return labels[status] || status;
+  const stats = {
+    total: shipments.length,
+    pending: shipments.filter((s) => s.status === 'PENDING').length,
+    transit: shipments.filter((s) => s.status === 'IN_TRANSIT').length,
+    delivered: shipments.filter((s) => s.status === 'DELIVERED').length,
+    delayed: shipments.filter((s) => s.status === 'DELAYED').length,
   };
 
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      PENDING: 'var(--warning)',
-      IN_TRANSIT: 'var(--primary)',
-      DELIVERED: 'var(--success)',
-      DELAYED: 'var(--danger)',
-    };
-    return colors[status] || 'var(--secondary)';
-  };
+  if (loading) {
+    return (
+      <div>
+        <div className="section-header">
+          <h1 className="section-title">Envíos</h1>
+          <p className="section-subtitle">Gestión de envíos en la cadena de suministro</p>
+        </div>
+        <div className="stat-cards">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="skeleton skeleton-card" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <div className="section-header">
+          <h1 className="section-title">Envíos</h1>
+          <p className="section-subtitle">Gestión de envíos en la cadena de suministro</p>
+        </div>
+        <div className="card">
+          <p style={{ color: 'var(--danger)' }}>Error: {error}</p>
+          <button className="btn btn-primary" onClick={fetchShipments} style={{ marginTop: '1rem' }}>
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
-      <header style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold' }}>
-          Envíos
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-          Gestión de envíos en la cadena de suministro
-        </p>
-      </header>
+      <div className="section-header">
+        <h1 className="section-title">Envíos</h1>
+        <p className="section-subtitle">Gestión de envíos en la cadena de suministro</p>
+      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1.5rem' }}>
+      <div className="stat-cards">
+        <div className="stat-card">
+          <div className="stat-card-value">{stats.total}</div>
+          <div className="stat-card-label">Total</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-card-value" style={{ color: 'var(--warning)' }}>{stats.pending}</div>
+          <div className="stat-card-label">Pendientes</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-card-value" style={{ color: 'var(--primary)' }}>{stats.transit}</div>
+          <div className="stat-card-label">En tránsito</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-card-value" style={{ color: 'var(--success)' }}>{stats.delivered}</div>
+          <div className="stat-card-label">Entregados</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-card-value" style={{ color: 'var(--danger)' }}>{stats.delayed}</div>
+          <div className="stat-card-label">Retrasados</div>
+        </div>
+      </div>
+
+      <div className="grid-3">
         <div>
           <ShipmentCreate onSuccess={fetchShipments} />
         </div>
 
         <div className="card">
-          <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: '1.125rem' }}>
-              Lista de Envíos ({shipments.length})
-            </h3>
-            <button className="btn btn-primary" onClick={fetchShipments}>
+          <div className="card-header">
+            <span className="card-title">Lista de Envíos ({shipments.length})</span>
+            <button className="btn btn-primary btn-sm" onClick={fetchShipments}>
               Actualizar
             </button>
           </div>
 
-          {loading && <p>Cargando...</p>}
-          
-          {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
-          
-          {!loading && shipments.length === 0 && (
-            <p style={{ color: 'var(--text-secondary)' }}>
-              No hay envíos. Crea uno para comenzar.
-            </p>
-          )}
-
-          {!loading && shipments.length > 0 && (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          {shipments.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-state-icon">🚚</div>
+              <p className="empty-state-text">
+                No hay envíos. Crea uno para comenzar.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-auto">
+              <table className="table-enhanced">
                 <thead>
-                  <tr style={{ borderBottom: '2px solid var(--border)' }}>
-                    <th style={{ textAlign: 'left', padding: '0.75rem' }}>ID</th>
-                    <th style={{ textAlign: 'left', padding: '0.75rem' }}>Estado</th>
-                    <th style={{ textAlign: 'left', padding: '0.75rem' }}>Ubicación</th>
-                    <th style={{ textAlign: 'left', padding: '0.75rem' }}>Actualizado</th>
+                  <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Recorrido</th>
+                    <th>Ubicación</th>
+                    <th>Actualizado</th>
                   </tr>
                 </thead>
                 <tbody>
                   {shipments.map((shipment) => (
-                    <tr
-                      key={shipment.id}
-                      style={{ borderBottom: '1px solid var(--border)' }}
-                    >
-                      <td style={{ padding: '0.75rem', fontFamily: 'monospace', fontSize: '0.875rem' }}>
-                        {shipment.id.slice(0, 8)}
+                    <tr key={shipment.id}>
+                      <td className="font-mono text-sm">{shipment.id.slice(0, 8)}</td>
+                      <td>
+                        <div className="font-medium text-sm">{shipment.productName}</div>
                       </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        <span
-                          style={{
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: '4px',
-                            fontSize: '0.75rem',
-                            fontWeight: 500,
-                            background: getStatusColor(shipment.status),
-                            color: 'white',
-                          }}
-                        >
-                          {getStatusLabel(shipment.status)}
-                        </span>
+                      <td>
+                        <TrackingProgress status={shipment.status} />
                       </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        {shipment.currentLocation}
-                      </td>
-                      <td style={{ padding: '0.75rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                      <td>{shipment.currentLocation}</td>
+                      <td className="text-sm text-secondary">
                         {new Date(shipment.updatedAt).toLocaleDateString('es-CO')}
                       </td>
                     </tr>

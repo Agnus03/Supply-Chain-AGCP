@@ -8,6 +8,7 @@ export function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     loadProducts();
@@ -30,76 +31,98 @@ export function ProductsPage() {
     setRefreshKey((k) => k + 1);
   };
 
+  const filtered = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.sku.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (loading) {
+    return (
+      <div>
+        <div className="section-header">
+          <h1 className="section-title">Productos</h1>
+          <p className="section-subtitle">Catálogo de productos registrados</p>
+        </div>
+        <div className="product-grid">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="skeleton skeleton-card" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <div className="section-header">
+          <h1 className="section-title">Productos</h1>
+          <p className="section-subtitle">Catálogo de productos registrados</p>
+        </div>
+        <div className="card">
+          <p style={{ color: 'var(--danger)' }}>Error: {error}</p>
+          <button className="btn btn-primary" onClick={loadProducts} style={{ marginTop: '1rem' }}>
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <h1 style={{ marginBottom: '1.5rem', fontSize: '1.875rem', fontWeight: 'bold' }}>
-        Productos
-      </h1>
+      <div className="section-header">
+        <h1 className="section-title">Productos</h1>
+        <p className="section-subtitle">Catálogo de productos registrados</p>
+      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1.5rem' }}>
+      <div className="grid-3">
         <div>
           <ProductCreate onSuccess={handleSuccess} />
         </div>
 
         <div>
-          {loading ? (
-            <div className="card">
-              <p>Cargando productos...</p>
-            </div>
-          ) : error ? (
-            <div className="card">
-              <p style={{ color: 'var(--danger)' }}>Error: {error}</p>
-              <button className="btn btn-primary" onClick={loadProducts} style={{ marginTop: '1rem' }}>
-                Reintentar
+          <div className="card">
+            <div className="card-header">
+              <div className="flex items-center gap-3">
+                <span className="card-title">Productos ({products.length})</span>
+                <div className="search-wrapper">
+                  <input
+                    className="search-bar"
+                    placeholder="Buscar por SKU o nombre..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+              </div>
+              <button className="btn btn-primary btn-sm" onClick={loadProducts}>
+                Actualizar
               </button>
             </div>
-          ) : products.length === 0 ? (
-            <div className="card">
-              <p style={{ color: 'var(--text-secondary)' }}>
-                No hay productos registrados. Crea uno para comenzar.
-              </p>
-            </div>
-          ) : (
-            <div className="card">
-              <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.125rem' }}>
-                  Productos ({products.length})
-                </h3>
-                <button className="btn btn-primary" onClick={loadProducts}>
-                  Actualizar
-                </button>
+
+            {filtered.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-state-icon">📦</div>
+                <p className="empty-state-text">
+                  {search
+                    ? 'No se encontraron productos con ese criterio.'
+                    : 'No hay productos registrados. Crea uno para comenzar.'}
+                </p>
               </div>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '2px solid var(--border)' }}>
-                      <th style={{ textAlign: 'left', padding: '0.75rem' }}>ID</th>
-                      <th style={{ textAlign: 'left', padding: '0.75rem' }}>SKU</th>
-                      <th style={{ textAlign: 'left', padding: '0.75rem' }}>Nombre</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {products.map((product) => (
-                      <tr
-                        key={product.id}
-                        style={{ borderBottom: '1px solid var(--border)' }}
-                      >
-                        <td style={{ padding: '0.75rem', fontFamily: 'monospace', fontSize: '0.875rem' }}>
-                          {product.id.slice(0, 8)}
-                        </td>
-                        <td style={{ padding: '0.75rem' }}>
-                          {product.sku}
-                        </td>
-                        <td style={{ padding: '0.75rem' }}>
-                          {product.name}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            ) : (
+              <div className="product-grid">
+                {filtered.map((product) => (
+                  <div key={product.id} className="product-card">
+                    <div className="product-card-icon">📦</div>
+                    <div className="product-card-name">{product.name}</div>
+                    <span className="badge-sku">{product.sku}</span>
+                    <div className="product-card-id">ID: {product.id.slice(0, 8)}</div>
+                  </div>
+                ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

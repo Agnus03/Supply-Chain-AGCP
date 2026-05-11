@@ -19,15 +19,7 @@ export function ProductCreate({ onSuccess }: ProductCreateProps) {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
+      await productService.create(formData.sku, formData.name);
 
       setFormData({
         sku: '',

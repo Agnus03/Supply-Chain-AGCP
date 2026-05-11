@@ -1,6 +1,5 @@
 package com.cadenasuministros.domain.port.out.proxy;
 
-import com.cadenasuministros.domain.model.SensorReading;
 import com.cadenasuministros.domain.model.Shipment;
 import com.cadenasuministros.domain.port.out.ShipmentRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,62 +31,62 @@ class ShipmentCacheProxyTest {
     }
 
     @Test
-    void test_findById_firstCall_delegatesToRealRepository() {
+    void test_findShipmentById_firstCall_delegatesToRealRepository() {
         UUID shipmentId = UUID.randomUUID();
         Shipment expected = createShipment(shipmentId);
-        when(realRepository.findById(shipmentId)).thenReturn(Optional.of(expected));
+        when(realRepository.findShipmentById(shipmentId)).thenReturn(Optional.of(expected));
 
-        Optional<Shipment> result = proxy.findById(shipmentId);
+        Optional<Shipment> result = proxy.findShipmentById(shipmentId);
 
         assertTrue(result.isPresent());
         assertEquals(expected, result.get());
-        verify(realRepository).findById(shipmentId);
+        verify(realRepository).findShipmentById(shipmentId);
     }
 
     @Test
-    void test_findById_secondCall_returnsFromCache() {
+    void test_findShipmentById_secondCall_returnsFromCache() {
         UUID shipmentId = UUID.randomUUID();
         Shipment expected = createShipment(shipmentId);
-        when(realRepository.findById(shipmentId)).thenReturn(Optional.of(expected));
+        when(realRepository.findShipmentById(shipmentId)).thenReturn(Optional.of(expected));
 
-        Optional<Shipment> result1 = proxy.findById(shipmentId);
-        Optional<Shipment> result2 = proxy.findById(shipmentId);
+        Optional<Shipment> result1 = proxy.findShipmentById(shipmentId);
+        Optional<Shipment> result2 = proxy.findShipmentById(shipmentId);
 
         assertTrue(result1.isPresent());
         assertTrue(result2.isPresent());
         assertEquals(expected, result1.get());
         assertEquals(expected, result2.get());
-        verify(realRepository, times(1)).findById(shipmentId);
+        verify(realRepository, times(1)).findShipmentById(shipmentId);
     }
 
     @Test
-    void test_findById_notFound_delegatesToRealRepository() {
+    void test_findShipmentById_notFound_delegatesToRealRepository() {
         UUID shipmentId = UUID.randomUUID();
-        when(realRepository.findById(shipmentId)).thenReturn(Optional.empty());
+        when(realRepository.findShipmentById(shipmentId)).thenReturn(Optional.empty());
 
-        Optional<Shipment> result = proxy.findById(shipmentId);
+        Optional<Shipment> result = proxy.findShipmentById(shipmentId);
 
         assertFalse(result.isPresent());
-        verify(realRepository).findById(shipmentId);
+        verify(realRepository).findShipmentById(shipmentId);
     }
 
     @Test
-    void test_findById_differentIds_delegateSeparately() {
+    void test_findShipmentById_differentIds_delegateSeparately() {
         UUID shipmentId1 = UUID.randomUUID();
         UUID shipmentId2 = UUID.randomUUID();
         Shipment expected1 = createShipment(shipmentId1);
         Shipment expected2 = createShipment(shipmentId2);
 
-        when(realRepository.findById(shipmentId1)).thenReturn(Optional.of(expected1));
-        when(realRepository.findById(shipmentId2)).thenReturn(Optional.of(expected2));
+        when(realRepository.findShipmentById(shipmentId1)).thenReturn(Optional.of(expected1));
+        when(realRepository.findShipmentById(shipmentId2)).thenReturn(Optional.of(expected2));
 
-        Optional<Shipment> result1 = proxy.findById(shipmentId1);
-        Optional<Shipment> result2 = proxy.findById(shipmentId2);
+        Optional<Shipment> result1 = proxy.findShipmentById(shipmentId1);
+        Optional<Shipment> result2 = proxy.findShipmentById(shipmentId2);
 
         assertEquals(expected1, result1.get());
         assertEquals(expected2, result2.get());
-        verify(realRepository, times(1)).findById(shipmentId1);
-        verify(realRepository, times(1)).findById(shipmentId2);
+        verify(realRepository, times(1)).findShipmentById(shipmentId1);
+        verify(realRepository, times(1)).findShipmentById(shipmentId2);
     }
 
     @Test
@@ -101,50 +100,50 @@ class ShipmentCacheProxyTest {
     }
 
     @Test
-    void test_listAll_firstCall_delegatesToRealRepository() {
-        List<SensorReading> expected = List.of(
-            createSensorReading(UUID.randomUUID()),
-            createSensorReading(UUID.randomUUID())
+    void test_listAllShipments_firstCall_delegatesToRealRepository() {
+        List<Shipment> expected = List.of(
+            createShipment(UUID.randomUUID()),
+            createShipment(UUID.randomUUID())
         );
-        when(realRepository.listAll()).thenReturn(expected);
+        when(realRepository.listAllShipments()).thenReturn(expected);
 
-        List<SensorReading> result = proxy.listAll();
+        List<Shipment> result = proxy.listAllShipments();
 
         assertEquals(expected, result);
-        verify(realRepository).listAll();
+        verify(realRepository).listAllShipments();
     }
 
     @Test
-    void test_listAll_secondCall_returnsFromCache() {
-        List<SensorReading> expected = List.of(createSensorReading(UUID.randomUUID()));
-        when(realRepository.listAll()).thenReturn(expected);
+    void test_listAllShipments_secondCall_returnsFromCache() {
+        List<Shipment> expected = List.of(createShipment(UUID.randomUUID()));
+        when(realRepository.listAllShipments()).thenReturn(expected);
 
-        List<SensorReading> result1 = proxy.listAll();
-        List<SensorReading> result2 = proxy.listAll();
+        List<Shipment> result1 = proxy.listAllShipments();
+        List<Shipment> result2 = proxy.listAllShipments();
 
         assertEquals(expected, result1);
         assertEquals(expected, result2);
-        verify(realRepository, times(1)).listAll();
+        verify(realRepository, times(1)).listAllShipments();
     }
 
     @Test
     void test_clearCache_removesAllCacheEntries() {
         UUID shipmentId = UUID.randomUUID();
         Shipment shipment = createShipment(shipmentId);
-        List<SensorReading> readings = List.of(createSensorReading(shipmentId));
+        List<Shipment> shipments = List.of(createShipment(shipmentId));
 
-        when(realRepository.findById(shipmentId)).thenReturn(Optional.of(shipment));
-        when(realRepository.listAll()).thenReturn(readings);
+        when(realRepository.findShipmentById(shipmentId)).thenReturn(Optional.of(shipment));
+        when(realRepository.listAllShipments()).thenReturn(shipments);
 
-        proxy.findById(shipmentId);
-        proxy.listAll();
+        proxy.findShipmentById(shipmentId);
+        proxy.listAllShipments();
         proxy.clearCache();
 
-        proxy.findById(shipmentId);
-        proxy.listAll();
+        proxy.findShipmentById(shipmentId);
+        proxy.listAllShipments();
 
-        verify(realRepository, times(2)).findById(shipmentId);
-        verify(realRepository, times(2)).listAll();
+        verify(realRepository, times(2)).findShipmentById(shipmentId);
+        verify(realRepository, times(2)).listAllShipments();
     }
 
     @Test
@@ -154,13 +153,13 @@ class ShipmentCacheProxyTest {
         Shipment shipment1 = createShipment(shipmentId1);
         Shipment shipment2 = createShipment(shipmentId2);
 
-        when(realRepository.findById(shipmentId1)).thenReturn(Optional.of(shipment1));
-        when(realRepository.findById(shipmentId2)).thenReturn(Optional.of(shipment2));
-        when(realRepository.listAll()).thenReturn(List.of());
+        when(realRepository.findShipmentById(shipmentId1)).thenReturn(Optional.of(shipment1));
+        when(realRepository.findShipmentById(shipmentId2)).thenReturn(Optional.of(shipment2));
+        when(realRepository.listAllShipments()).thenReturn(List.of());
 
-        proxy.findById(shipmentId1);
-        proxy.findById(shipmentId2);
-        proxy.listAll();
+        proxy.findShipmentById(shipmentId1);
+        proxy.findShipmentById(shipmentId2);
+        proxy.listAllShipments();
 
         int cacheSize = proxy.getCacheSize();
 
@@ -170,14 +169,14 @@ class ShipmentCacheProxyTest {
     @Test
     void test_save_invalidatesAllCaches() {
         Shipment shipment = createShipment(UUID.randomUUID());
-        List<SensorReading> readings = List.of(createSensorReading(shipment.id()));
+        List<Shipment> shipments = List.of(createShipment(shipment.id()));
 
-        when(realRepository.findById(any())).thenReturn(Optional.of(shipment));
-        when(realRepository.listAll()).thenReturn(readings);
+        when(realRepository.findShipmentById(any())).thenReturn(Optional.of(shipment));
+        when(realRepository.listAllShipments()).thenReturn(shipments);
         when(realRepository.save(any())).thenReturn(shipment);
 
-        proxy.findById(shipment.id());
-        proxy.listAll();
+        proxy.findShipmentById(shipment.id());
+        proxy.listAllShipments();
 
         proxy.save(shipment);
 
@@ -190,9 +189,9 @@ class ShipmentCacheProxyTest {
 
         UUID shipmentId = UUID.randomUUID();
         Shipment expected = createShipment(shipmentId);
-        when(realRepository.findById(shipmentId)).thenReturn(Optional.of(expected));
+        when(realRepository.findShipmentById(shipmentId)).thenReturn(Optional.of(expected));
 
-        Optional<Shipment> result = proxyWithDefault.findById(shipmentId);
+        Optional<Shipment> result = proxyWithDefault.findShipmentById(shipmentId);
 
         assertTrue(result.isPresent());
         assertEquals(expected, result.get());
@@ -205,19 +204,19 @@ class ShipmentCacheProxyTest {
 
         UUID shipmentId = UUID.randomUUID();
         Shipment expected = createShipment(shipmentId);
-        when(realRepository.findById(shipmentId)).thenReturn(Optional.of(expected));
+        when(realRepository.findShipmentById(shipmentId)).thenReturn(Optional.of(expected));
 
-        Optional<Shipment> result = proxyWithCustom.findById(shipmentId);
+        Optional<Shipment> result = proxyWithCustom.findShipmentById(shipmentId);
 
         assertTrue(result.isPresent());
         assertEquals(expected, result.get());
     }
 
     @Test
-    void test_listAll_withEmptyResult() {
-        when(realRepository.listAll()).thenReturn(List.of());
+    void test_listAllShipments_withEmptyResult() {
+        when(realRepository.listAllShipments()).thenReturn(List.of());
 
-        List<SensorReading> result = proxy.listAll();
+        List<Shipment> result = proxy.listAllShipments();
 
         assertTrue(result.isEmpty());
     }
@@ -229,18 +228,6 @@ class ShipmentCacheProxyTest {
             "IN_TRANSIT",
             "BOGOTA",
             Instant.now()
-        );
-    }
-
-    private SensorReading createSensorReading(UUID shipmentId) {
-        return new SensorReading(
-            UUID.randomUUID(),
-            shipmentId,
-            Instant.now(),
-            25.0,
-            60.0,
-            40.4,
-            -3.7
         );
     }
 }

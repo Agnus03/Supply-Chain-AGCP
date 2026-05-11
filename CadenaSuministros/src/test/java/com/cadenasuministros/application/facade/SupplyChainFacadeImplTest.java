@@ -1,5 +1,6 @@
 package com.cadenasuministros.application.facade;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -7,15 +8,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.cadenasuministros.domain.model.DeliveryReport;
+import com.cadenasuministros.domain.model.Product;
 import com.cadenasuministros.domain.model.SensorReading;
 import com.cadenasuministros.domain.model.Shipment;
 import com.cadenasuministros.domain.port.in.GenerateDeliveryReportUseCase;
 import com.cadenasuministros.domain.port.in.RegisterSensorReadingUseCase;
 import com.cadenasuministros.domain.port.in.TrackShipmentUseCase;
+import com.cadenasuministros.domain.port.out.ProductRepository;
 import com.cadenasuministros.domain.port.out.SensorReadingRepository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,8 +41,17 @@ class SupplyChainFacadeImplTest {
     @Mock
     private SensorReadingRepository sensorReadingRepository;
 
+    @Mock
+    private ProductRepository productRepository;
+
     @InjectMocks
     private SupplyChainFacadeImpl facade;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(productRepository.findProductById(any()))
+                .thenReturn(Optional.of(new Product(UUID.randomUUID(), "SKU", "Producto Test")));
+    }
 
     @Test
     void test_createShipment_returnsShipmentInfo() {
@@ -96,6 +109,7 @@ class SupplyChainFacadeImplTest {
                 now
         );
         when(trackShipmentUseCase.getById(shipmentId)).thenReturn(mockShipment);
+        when(productRepository.findProductById(any())).thenReturn(Optional.of(new Product(UUID.randomUUID(), "SKU", "Test")));
 
         ShipmentInfo result = facade.getShipmentInfo(shipmentId);
 
@@ -103,6 +117,7 @@ class SupplyChainFacadeImplTest {
         assertEquals(shipmentId, result.id());
         assertEquals("IN_TRANSIT", result.status());
         assertEquals("BOGOTA", result.currentLocation());
+        assertEquals("Test", result.productName());
     }
 
     @Test

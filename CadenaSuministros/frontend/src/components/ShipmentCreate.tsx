@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import productService from '../api/productService';
+import { shipmentService } from '../api/shipmentService';
 import type { Product } from '../types';
 
 interface ShipmentCreateProps {
@@ -26,15 +27,7 @@ export function ShipmentCreate({ onSuccess }: ShipmentCreateProps) {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/shipments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
+      await shipmentService.create(formData);
 
       setFormData({
         productId: '',
