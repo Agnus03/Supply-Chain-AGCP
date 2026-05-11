@@ -1,13 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SensorsPage from './pages/SensorsPage';
 import ShipmentsPage from './pages/ShipmentsPage';
 import ReportsPage from './pages/ReportsPage';
 import ProductsPage from './pages/ProductsPage';
 
-type Page = 'sensors' | 'shipments' | 'reports' | 'products';
+type Page = 'products' | 'sensors' | 'shipments' | 'reports';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('products');
+
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('logistictrack-theme') || 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('logistictrack-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((t) => (t === 'light' ? 'dark' : 'light'));
+  };
 
   const navItems: { id: Page; label: string }[] = [
     { id: 'products', label: 'Productos' },
@@ -18,47 +31,40 @@ function App() {
 
   return (
     <div>
-      <nav
-        style={{
-          background: 'var(--surface)',
-          borderBottom: '1px solid var(--border)',
-          padding: '1rem',
-          marginBottom: '2rem',
-        }}
-      >
-        <div className="container">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
-              Cadena de Suministros
-            </h1>
-            <div style={{ display: 'flex', gap: '1.5rem' }}>
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setCurrentPage(item.id)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    fontSize: '1rem',
-                    color: currentPage === item.id ? 'var(--primary)' : 'var(--text-secondary)',
-                    fontWeight: currentPage === item.id ? 500 : 400,
-                    cursor: 'pointer',
-                    padding: '0.25rem 0',
-                  }}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
+      <header className="app-header">
+        <div className="app-header-inner">
+          <div className="app-logo">
+            <span className="app-logo-icon">🚚</span>
+            <span>LogisticTrack</span>
           </div>
+          <nav className="app-nav">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                className={`nav-link ${currentPage === item.id ? 'active' : ''}`}
+                onClick={() => setCurrentPage(item.id)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+          <button
+            className="theme-toggle"
+            onClick={toggleTheme}
+            title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
         </div>
-      </nav>
+      </header>
 
-      <main className="container">
-        {currentPage === 'products' && <ProductsPage />}
-        {currentPage === 'sensors' && <SensorsPage />}
-        {currentPage === 'shipments' && <ShipmentsPage />}
-        {currentPage === 'reports' && <ReportsPage />}
+      <main style={{ paddingTop: '1.5rem' }}>
+        <div className="container">
+          {currentPage === 'products' && <ProductsPage />}
+          {currentPage === 'sensors' && <SensorsPage />}
+          {currentPage === 'shipments' && <ShipmentsPage />}
+          {currentPage === 'reports' && <ReportsPage />}
+        </div>
       </main>
     </div>
   );

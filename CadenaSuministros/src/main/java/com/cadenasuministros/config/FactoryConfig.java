@@ -8,6 +8,8 @@ import com.cadenasuministros.adapters.outbound.persistence.jpa.SpringDataDeliver
 import com.cadenasuministros.adapters.outbound.persistence.jpa.SpringDataSensorReadingRepository;
 import com.cadenasuministros.adapters.outbound.persistence.jpa.SpringDataShipmentRepository;
 import com.cadenasuministros.adapters.outbound.persistence.jpa.SpringDataProductRepository;
+import com.cadenasuministros.application.facade.SupplyChainFacade;
+import com.cadenasuministros.application.facade.SupplyChainFacadeImpl;
 import com.cadenasuministros.application.factory.*;
 import com.cadenasuministros.application.reporting.abstraction.DeliveryReportGenerator;
 import com.cadenasuministros.application.reporting.abstraction.DetailedDeliveryReportGenerator;
@@ -93,5 +95,20 @@ public class FactoryConfig {
             new ValidationReportDecorator(withLogs);
 
         return withValidation;
+    }
+
+    @Bean
+    SupplyChainFacade supplyChainFacade(
+            TrackShipmentUseCase trackShipmentUseCase,
+            RegisterSensorReadingUseCase registerSensorReadingUseCase,
+            GenerateDeliveryReportUseCase generateDeliveryReportUseCase,
+            SensorReadingRepository sensorReadingRepository,
+            ProductRepository productRepository) {
+        return new SupplyChainFacadeImpl(
+                trackShipmentUseCase,
+                registerSensorReadingUseCase,
+                generateDeliveryReportUseCase,
+                sensorReadingRepository,
+                productRepository);
     }
 }

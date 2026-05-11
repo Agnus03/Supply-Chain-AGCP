@@ -1,0 +1,343 @@
+[INFO] Scanning for projects...
+Downloading from central: https://repo.maven.apache.org/maven2/org/cyclonedx/maven-metadata.xml
+Downloading from central: https://repo.maven.apache.org/maven2/org/springframework/boot/maven-metadata.xml
+Downloading from central: https://repo.maven.apache.org/maven2/org/flywaydb/maven-metadata.xml
+Downloading from central: https://repo.maven.apache.org/maven2/io/github/git-commit-id/maven-metadata.xml
+Progress (1): 234 B                   Downloaded from central: https://repo.maven.apache.org/maven2/org/flywaydb/maven-metadata.xml (234 B at 674 B/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/jooq/maven-metadata.xml
+Progress (1): 398 B                   Downloaded from central: https://repo.maven.apache.org/maven2/org/jooq/maven-metadata.xml (398 B at 13 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/maven-metadata.xml
+Progress (1): 375 B                   Downloaded from central: https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/maven-metadata.xml (375 B at 13 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/liquibase/maven-metadata.xml
+Progress (1): 394 B                   Downloaded from central: https://repo.maven.apache.org/maven2/org/liquibase/maven-metadata.xml (394 B at 12 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/graalvm/buildtools/maven-metadata.xml
+Progress (1): 243 BProgress (2): 243 B | 249 B                           Downloaded from central: https://repo.maven.apache.org/maven2/org/springframework/boot/maven-metadata.xml (249 B at 480 B/s)
+Downloaded from central: https://repo.maven.apache.org/maven2/org/cyclonedx/maven-metadata.xml (243 B at 469 B/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-metadata.xml
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/mojo/maven-metadata.xml
+Progress (1): 255 B                   Downloaded from central: https://repo.maven.apache.org/maven2/io/github/git-commit-id/maven-metadata.xml (255 B at 486 B/s)
+Progress (1): 3.3 kBProgress (2): 3.3 kB | 4.8 kBProgress (2): 7.9 kB | 4.8 kBProgress (2): 7.9 kB | 7.7 kBProgress (2): 12 kB | 7.7 kB Progress (2): 16 kB | 7.7 kBProgress (2): 16 kB | 14 kB Progress (2): 16 kB | 14 kBProgress (2): 20 kB | 14 kBProgress (2): 21 kB | 14 kB                           Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-metadata.xml (14 kB at 357 kB/s)
+Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/mojo/maven-metadata.xml (21 kB at 286 kB/s)
+Progress (1): 242 B                   Downloaded from central: https://repo.maven.apache.org/maven2/org/graalvm/buildtools/maven-metadata.xml (242 B at 1.4 kB/s)
+[INFO] 
+[INFO] --------------< com.cadenasuministros:CadenaSuministros >---------------
+[INFO] Building CadenaSuministros 1.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:4.0.3:run (default-cli) > test-compile @ CadenaSuministros >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ CadenaSuministros ---
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ CadenaSuministros ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ CadenaSuministros ---
+[INFO] skip non existing resourceDirectory C:\Users\AndresG\git\Patrones_AGCP\CadenaSuministros\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ CadenaSuministros ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 6 source files with javac [debug parameters release 17] to target\test-classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[38,28] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[40,42] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[44,31] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[51,28] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[53,43] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[54,43] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[60,41] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[66,28] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[68,42] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[71,31] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[81,28] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[82,28] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[84,43] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[85,43] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[89,41] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[90,41] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[109,28] cannot find symbol
+  symbol:   method listAll()
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[111,43] cannot find symbol
+  symbol:   method listAll()
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[114,31] cannot find symbol
+  symbol:   method listAll()
+  location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[120,28] cannot find symbol
+  symbol:   method listAll()
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[122,44] cannot find symbol
+  symbol:   method listAll()
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[123,44] cannot find symbol
+  symbol:   method listAll()
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[127,41] cannot find symbol
+  symbol:   method listAll()
+  location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[136,28] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[137,28] cannot find symbol
+  symbol:   method listAll()
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[139,14] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[140,14] cannot find symbol
+  symbol:   method listAll()
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[143,14] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[144,14] cannot find symbol
+  symbol:   method listAll()
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[146,41] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[147,41] cannot find symbol
+  symbol:   method listAll()
+  location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[157,28] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[158,28] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[159,28] cannot find symbol
+  symbol:   method listAll()
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[161,14] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[162,14] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[163,14] cannot find symbol
+  symbol:   method listAll()
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[175,28] cannot find symbol
+  symbol:   method findById(java.lang.Object)
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[176,28] cannot find symbol
+  symbol:   method listAll()
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[179,14] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[180,14] cannot find symbol
+  symbol:   method listAll()
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[193,28] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[195,53] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable proxyWithDefault of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[208,28] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[210,52] cannot find symbol
+  symbol:   method findById(java.util.UUID)
+  location: variable proxyWithCustom of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[218,28] cannot find symbol
+  symbol:   method listAll()
+  location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[220,43] cannot find symbol
+  symbol:   method listAll()
+  location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[INFO] 47 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  4.353 s
+[INFO] Finished at: 2026-05-10T13:10:09-05:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.1:testCompile (default-testCompile) on project CadenaSuministros: Compilation failure: Compilation failure: 
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[38,28] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[40,42] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[44,31] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[51,28] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[53,43] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[54,43] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[60,41] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[66,28] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[68,42] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[71,31] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[81,28] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[82,28] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[84,43] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[85,43] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[89,41] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[90,41] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[109,28] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[111,43] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[114,31] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[120,28] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[122,44] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[123,44] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[127,41] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[136,28] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[137,28] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[139,14] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[140,14] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[143,14] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[144,14] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[146,41] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[147,41] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: interface com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[157,28] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[158,28] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[159,28] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[161,14] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[162,14] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[163,14] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[175,28] cannot find symbol
+[ERROR]   symbol:   method findById(java.lang.Object)
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[176,28] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[179,14] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[180,14] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[193,28] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[195,53] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable proxyWithDefault of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[208,28] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[210,52] cannot find symbol
+[ERROR]   symbol:   method findById(java.util.UUID)
+[ERROR]   location: variable proxyWithCustom of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[218,28] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: variable realRepository of type com.cadenasuministros.domain.port.out.ShipmentRepository
+[ERROR] /C:/Users/AndresG/git/Patrones_AGCP/CadenaSuministros/src/test/java/com/cadenasuministros/domain/port/out/proxy/ShipmentCacheProxyTest.java:[220,43] cannot find symbol
+[ERROR]   symbol:   method listAll()
+[ERROR]   location: variable proxy of type com.cadenasuministros.domain.port.out.proxy.ShipmentCacheProxy
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

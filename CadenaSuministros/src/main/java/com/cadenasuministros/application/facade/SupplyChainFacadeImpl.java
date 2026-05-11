@@ -3,15 +3,18 @@ package com.cadenasuministros.application.facade;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.cadenasuministros.domain.model.DeliveryReport;
+import com.cadenasuministros.domain.model.Product;
 import com.cadenasuministros.domain.model.SensorReading;
 import com.cadenasuministros.domain.model.Shipment;
 import com.cadenasuministros.domain.port.in.GenerateDeliveryReportUseCase;
 import com.cadenasuministros.domain.port.in.RegisterSensorReadingUseCase;
 import com.cadenasuministros.domain.port.in.TrackShipmentUseCase;
+import com.cadenasuministros.domain.port.out.ProductRepository;
 import com.cadenasuministros.domain.port.out.SensorReadingRepository;
 
 public class SupplyChainFacadeImpl implements SupplyChainFacade {
@@ -20,16 +23,19 @@ public class SupplyChainFacadeImpl implements SupplyChainFacade {
     private final RegisterSensorReadingUseCase registerSensorReadingUseCase;
     private final GenerateDeliveryReportUseCase generateDeliveryReportUseCase;
     private final SensorReadingRepository sensorReadingRepository;
+    private final ProductRepository productRepository;
 
     public SupplyChainFacadeImpl(
             TrackShipmentUseCase trackShipmentUseCase,
             RegisterSensorReadingUseCase registerSensorReadingUseCase,
             GenerateDeliveryReportUseCase generateDeliveryReportUseCase,
-            SensorReadingRepository sensorReadingRepository) {
+            SensorReadingRepository sensorReadingRepository,
+            ProductRepository productRepository) {
         this.trackShipmentUseCase = trackShipmentUseCase;
         this.registerSensorReadingUseCase = registerSensorReadingUseCase;
         this.generateDeliveryReportUseCase = generateDeliveryReportUseCase;
         this.sensorReadingRepository = sensorReadingRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -48,7 +54,22 @@ public class SupplyChainFacadeImpl implements SupplyChainFacade {
     @Override
     public ShipmentInfo getShipmentInfo(UUID shipmentId) {
         Shipment shipment = trackShipmentUseCase.getById(shipmentId);
-        return toShipmentInfo(shipment, "Product", 1);
+        String productName = productRepository.findProductById(shipment.productId())
+                .map(Product::name)
+                .orElse("Producto desconocido");
+        return toShipmentInfo(shipment, productName, 1);
+    }
+
+    @Override
+    public List<ShipmentInfo> listAllShipmentInfos() {
+        List<Shipment> shipments = trackShipmentUseCase.listAll();
+        Map<UUID, String> productNames = productRepository.listAllProducts().stream()
+                .collect(Collectors.toMap(Product::id, Product::name));
+        return shipments.stream()
+                .map(s -> toShipmentInfo(s,
+                        productNames.getOrDefault(s.productId(), "Producto desconocido"),
+                        1))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -87,9 +108,12 @@ public class SupplyChainFacadeImpl implements SupplyChainFacade {
     public Dashboard getShipmentDashboard(UUID shipmentId) {
         Shipment shipment = trackShipmentUseCase.getById(shipmentId);
         List<SensorReading> readings = sensorReadingRepository.findByShipmentId(shipmentId);
+        String productName = productRepository.findProductById(shipment.productId())
+                .map(Product::name)
+                .orElse("Producto desconocido");
 
         Dashboard.ShipmentSummary summary = new Dashboard.ShipmentSummary(
-                "Product",
+                productName,
                 1,
                 shipment.status(),
                 formatInstant(shipment.updatedAt()),

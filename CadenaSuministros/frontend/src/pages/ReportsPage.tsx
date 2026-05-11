@@ -1,15 +1,63 @@
 import { useState, useEffect } from 'react';
-import type { Shipment } from '../types';
+import type { Shipment, DeliveryReport } from '../types';
 import { shipmentService } from '../api/shipmentService';
 import { reportService } from '../api/reportService';
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: 'Pendiente',
+  IN_TRANSIT: 'En tránsito',
+  DELIVERED: 'Entregado',
+  DELAYED: 'Retrasado',
+};
+
+function ReportMetric({
+  label,
+  value,
+  variant,
+}: {
+  label: string;
+  value: string;
+  variant?: 'ok' | 'warn' | 'danger';
+}) {
+  return (
+    <div className="metric-card">
+      <div className="metric-label">{label}</div>
+      <div className={`metric-value ${variant ? `temp-${variant}` : ''}`}>
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function ReportSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: '1.5rem' }}>
+      <h4
+        style={{
+          fontSize: '0.75rem',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+          color: 'var(--text-secondary)',
+          marginBottom: '0.75rem',
+          paddingBottom: '0.5rem',
+          borderBottom: '1px solid var(--border)',
+        }}
+      >
+        {title}
+      </h4>
+      {children}
+    </div>
+  );
+}
 
 export function ReportsPage() {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [loadingShipments, setLoadingShipments] = useState(true);
-  
+
   const [selectedShipmentId, setSelectedShipmentId] = useState<string>('');
   const [loadingReport, setLoadingReport] = useState(false);
-  const [report, setReport] = useState<any>(null);
+  const [report, setReport] = useState<DeliveryReport | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -28,11 +76,11 @@ export function ReportsPage() {
 
   const generateReport = async () => {
     if (!selectedShipmentId) return;
-    
+
     setLoadingReport(true);
     setError(null);
     setReport(null);
-    
+
     try {
       const data = await reportService.generateDeliveryReport(selectedShipmentId);
       setReport(data);
@@ -43,34 +91,19 @@ export function ReportsPage() {
     }
   };
 
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      PENDING: 'Pendiente',
-      IN_TRANSIT: 'En tránsito',
-      DELIVERED: 'Entregado',
-      DELAYED: 'Retrasado',
-    };
-    return labels[status] || status;
-  };
-
   return (
     <div>
-      <header style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold' }}>
-          Reportes de Entrega
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+      <div className="section-header">
+        <h1 className="section-title">Reportes de Entrega</h1>
+        <p className="section-subtitle">
           Genera reportes con estadísticas ambientales de tus envíos
         </p>
-      </header>
+      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1.5rem' }}>
-        {/* Panel de Generación */}
+      <div className="grid-3">
         <div className="card">
-          <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem' }}>
-            Generar Reporte
-          </h3>
-          
+          <h3 className="card-title mb-4">Generar Reporte</h3>
+
           <div className="form-group">
             <label htmlFor="shipmentSelect">Seleccionar Envío</label>
             <select
@@ -88,125 +121,126 @@ export function ReportsPage() {
               </option>
               {shipments.map((shipment) => (
                 <option key={shipment.id} value={shipment.id}>
-                  {shipment.id.slice(0, 8)} - {getStatusLabel(shipment.status)} ({shipment.currentLocation})
+                  {shipment.id.slice(0, 8)} -{' '}
+                  {STATUS_LABELS[shipment.status] || shipment.status} (
+                  {shipment.currentLocation})
                 </option>
               ))}
             </select>
           </div>
 
           <button
-            className="btn btn-primary"
+            className="btn btn-primary w-full"
             onClick={generateReport}
             disabled={!selectedShipmentId || loadingReport}
-            style={{ width: '100%' }}
           >
             {loadingReport ? 'Generando...' : 'Generar Reporte'}
           </button>
 
           {error && (
-            <p style={{ color: 'var(--danger)', marginTop: '1rem' }}>
+            <p className="text-sm mt-3" style={{ color: 'var(--danger)' }}>
               {error}
             </p>
           )}
         </div>
 
-        {/* Panel del Reporte */}
         <div className="card">
-          <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem' }}>
-            Reporte de Entrega
-          </h3>
-          
           {!report && !error && (
-            <p style={{ color: 'var(--text-secondary)' }}>
-              Selecciona un envío y genera el reporte para ver los resultados.
-            </p>
+            <div className="empty-state">
+              <div className="empty-state-icon">📋</div>
+              <p className="empty-state-text">
+                Selecciona un envío y genera el reporte para ver los resultados.
+              </p>
+            </div>
           )}
 
           {report && (
             <div>
-              {/* Encabezado */}
-              <div style={{ 
-                padding: '1rem', 
-                background: 'var(--background)', 
-                borderRadius: '8px',
-                marginBottom: '1rem'
-              }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <ReportSection title="Información General">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                   <div>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>ID Reporte</p>
-                    <p style={{ fontFamily: 'monospace' }}>{report.reportId?.slice(0, 8) || 'N/A'}</p>
+                    <div className="text-xs text-secondary font-medium">ID Reporte</div>
+                    <div className="font-mono text-sm">{report.reportId?.slice(0, 8) || 'N/A'}</div>
                   </div>
                   <div>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Estado</p>
-                    <p style={{ fontWeight: 500 }}>{report.deliveryStatus || 'N/A'}</p>
+                    <div className="text-xs text-secondary font-medium">ID Envío</div>
+                    <div className="font-mono text-sm">{report.shipmentId?.slice(0, 8) || 'N/A'}</div>
                   </div>
                   <div>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Origen</p>
-                    <p>{report.origin || 'N/A'}</p>
+                    <div className="text-xs text-secondary font-medium">Origen</div>
+                    <div className="text-sm">{report.origin || 'N/A'}</div>
                   </div>
                   <div>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Destino</p>
-                    <p>{report.destination || 'N/A'}</p>
+                    <div className="text-xs text-secondary font-medium">Destino</div>
+                    <div className="text-sm">{report.destination || 'N/A'}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-secondary font-medium">Estado</div>
+                    <span
+                      className={`badge badge-status ${
+                        report.deliveryStatus === 'DELIVERED'
+                          ? 'badge-delivered'
+                          : report.deliveryStatus === 'DELAYED'
+                          ? 'badge-delayed'
+                          : report.deliveryStatus === 'IN_TRANSIT'
+                          ? 'badge-transit'
+                          : 'badge-pending'
+                      }`}
+                    >
+                      {STATUS_LABELS[report.deliveryStatus] || report.deliveryStatus}
+                    </span>
                   </div>
                 </div>
-              </div>
+              </ReportSection>
 
-              {/* Estadísticas */}
-              <h4 style={{ marginBottom: '0.75rem', marginTop: '1rem' }}>
-                Estadísticas Ambientales
-              </h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div style={{ padding: '1rem', background: 'var(--background)', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Temperatura Promedio</p>
-                  <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-                    {report.averageTemperature?.toFixed(1) ?? '0'}°C
-                  </p>
+              <ReportSection title="Estadísticas Ambientales">
+                <div className="stat-cards" style={{ marginBottom: 0 }}>
+                  <ReportMetric
+                    label="Temp. Promedio"
+                    value={`${report.averageTemperature?.toFixed(1) ?? '-'}°C`}
+                    variant={
+                      report.temperatureAlert
+                        ? 'danger'
+                        : report.averageTemperature !== null
+                        ? 'ok'
+                        : undefined
+                    }
+                  />
+                  <ReportMetric
+                    label="Humedad Promedio"
+                    value={`${report.averageHumidity?.toFixed(1) ?? '-'}%`}
+                    variant={
+                      report.humidityAlert
+                        ? 'danger'
+                        : report.averageHumidity !== null
+                        ? 'ok'
+                        : undefined
+                    }
+                  />
                 </div>
-                <div style={{ padding: '1rem', background: 'var(--background)', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Humedad Promedio</p>
-                  <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-                    {report.averageHumidity?.toFixed(1) ?? '0'}%
-                  </p>
-                </div>
-              </div>
+              </ReportSection>
 
-              {/* Alertas */}
-              <h4 style={{ marginBottom: '0.75rem', marginTop: '1rem' }}>
-                Alertas
-              </h4>
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <div style={{ 
-                  padding: '0.75rem', 
-                  borderRadius: '8px',
-                  background: report.temperatureAlert ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
-                  border: `1px solid ${report.temperatureAlert ? 'var(--danger)' : 'var(--success)'}`
-                }}>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+              <ReportSection title="Alertas">
+                <div className="flex gap-3">
+                  <div
+                    className={`alert-badge ${report.temperatureAlert ? 'alert-danger' : 'alert-success'}`}
+                  >
                     {report.temperatureAlert ? '⚠️ Alerta Temperatura' : '✓ Temperatura OK'}
-                  </p>
-                </div>
-                <div style={{ 
-                  padding: '0.75rem', 
-                  borderRadius: '8px',
-                  background: report.humidityAlert ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
-                  border: `1px solid ${report.humidityAlert ? 'var(--danger)' : 'var(--success)'}`
-                }}>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                  </div>
+                  <div
+                    className={`alert-badge ${report.humidityAlert ? 'alert-danger' : 'alert-success'}`}
+                  >
                     {report.humidityAlert ? '⚠️ Alerta Humedad' : '✓ Humedad OK'}
-                  </p>
+                  </div>
                 </div>
-              </div>
+              </ReportSection>
 
-              {/* Observaciones */}
               {report.observations && (
-                <>
-                  <h4 style={{ marginBottom: '0.75rem', marginTop: '1rem' }}>
-                    Observaciones
-                  </h4>
-                  <p style={{ color: 'var(--text-secondary)' }}>
+                <ReportSection title="Observaciones">
+                  <p className="text-sm text-secondary" style={{ lineHeight: 1.6 }}>
                     {report.observations}
                   </p>
-                </>
+                </ReportSection>
               )}
             </div>
           )}
