@@ -18,3 +18,11 @@ spring:
 
 server:
   port: 8080
+
+alert:
+  temperature:
+    min: 2.0
+    max: 30.0
+  humidity:
+    min: 30.0
+    max: 80.0

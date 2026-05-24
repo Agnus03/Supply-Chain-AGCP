@@ -3,8 +3,10 @@ package com.cadenasuministros.config;
 import com.cadenasuministros.domain.model.Product;
 import com.cadenasuministros.domain.model.SensorReading;
 import com.cadenasuministros.domain.model.Shipment;
+import com.cadenasuministros.domain.model.ShipmentEvent;
 import com.cadenasuministros.domain.port.out.ProductRepository;
 import com.cadenasuministros.domain.port.out.SensorReadingRepository;
+import com.cadenasuministros.domain.port.out.ShipmentEventRepository;
 import com.cadenasuministros.domain.port.out.ShipmentRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -18,14 +20,17 @@ public class DataInitializer implements CommandLineRunner {
     private final ProductRepository productRepository;
     private final ShipmentRepository shipmentRepository;
     private final SensorReadingRepository sensorReadingRepository;
+    private final ShipmentEventRepository eventRepository;
 
     public DataInitializer(
             ProductRepository productRepository,
             ShipmentRepository shipmentRepository,
-            SensorReadingRepository sensorReadingRepository) {
+            SensorReadingRepository sensorReadingRepository,
+            ShipmentEventRepository eventRepository) {
         this.productRepository = productRepository;
         this.shipmentRepository = shipmentRepository;
         this.sensorReadingRepository = sensorReadingRepository;
+        this.eventRepository = eventRepository;
     }
 
     @Override
@@ -42,11 +47,16 @@ public class DataInitializer implements CommandLineRunner {
         var now = Instant.now();
         var envioFresa = shipmentRepository.save(
                 new Shipment(UUID.randomUUID(), fresa.id(), "IN_TRANSIT", "BOGOTA", now));
-        shipmentRepository.save(
+        var envioLeche = shipmentRepository.save(
                 new Shipment(UUID.randomUUID(), leche.id(), "PENDING", "WAREHOUSE", now));
         var envioSensor = shipmentRepository.save(
                 new Shipment(UUID.randomUUID(), sensorIndustrial.id(), "DELIVERED", "BARRANQUILLA",
                         now.minus(1, ChronoUnit.DAYS)));
+
+        recordEvent(envioFresa.id(), null, "IN_TRANSIT", null, "BOGOTA", now);
+        recordEvent(envioLeche.id(), null, "PENDING", null, "WAREHOUSE", now);
+        recordEvent(envioSensor.id(), null, "DELIVERED", null, "BARRANQUILLA",
+                now.minus(1, ChronoUnit.DAYS));
 
         sensorReadingRepository.save(new SensorReading(
                 UUID.randomUUID(), envioFresa.id(), now.minus(2, ChronoUnit.HOURS),
@@ -68,5 +78,14 @@ public class DataInitializer implements CommandLineRunner {
         sensorReadingRepository.save(new SensorReading(
                 UUID.randomUUID(), envioSensor.id(), horaSalida.plus(12, ChronoUnit.HOURS),
                 32.0, 65.0, 10.9600, -74.7800));
+    }
+
+    private void recordEvent(UUID shipmentId, String fromStatus, String toStatus,
+                              String fromLocation, String toLocation, Instant timestamp) {
+        eventRepository.save(new ShipmentEvent(
+                UUID.randomUUID(), shipmentId,
+                fromStatus, toStatus,
+                fromLocation, toLocation,
+                timestamp));
     }
 }

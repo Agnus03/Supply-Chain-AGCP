@@ -1,4 +1,5 @@
 import type { SensorReading } from '../types';
+import { isTempAlert } from '../utils/alertHelpers';
 
 interface SensorListProps {
   readings: SensorReading[];
@@ -8,14 +9,9 @@ interface SensorListProps {
   onRefresh: () => void;
 }
 
-function isTemperatureAlert(temp: number | null | undefined): boolean {
-  if (temp === null || temp === undefined) return false;
-  return temp > 30 || temp < 2;
-}
-
 function TempIndicator({ value }: { value: number | null }) {
   if (value === null || value === undefined) return <span className="text-secondary">-</span>;
-  const alert = isTemperatureAlert(value);
+  const alert = isTempAlert(value);
   return (
     <span className={alert ? 'temp-danger' : 'temp-normal'}>
       {value.toFixed(1)}
@@ -53,7 +49,7 @@ export function SensorList({ readings, shipmentId, loading, error, onRefresh }: 
     );
   }
 
-  const alertCount = readings.filter((r) => isTemperatureAlert(r.temperatureC)).length;
+  const alertCount = readings.filter((r) => isTempAlert(r.temperatureC)).length;
 
   return (
     <div className="card">

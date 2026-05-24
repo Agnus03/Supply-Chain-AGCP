@@ -19,6 +19,7 @@ import com.cadenasuministros.application.reporting.implementor.JpaReportOutput;
 import com.cadenasuministros.application.reporting.implementor.ReportOutput;
 import com.cadenasuministros.domain.port.in.*;
 import com.cadenasuministros.domain.port.out.*;
+import com.cadenasuministros.domain.service.AlertEvaluator;
 import com.cadenasuministros.domain.service.GenerateDeliveryReportService;
 
 @Configuration
@@ -26,8 +27,9 @@ public class FactoryConfig {
 
     @Bean
     TrackShipmentUseCaseFactory trackShipmentUseCaseFactory(
-            ShipmentRepository shipmentRepository) {
-        return new TrackShipmentServiceFactory(shipmentRepository);
+            ShipmentRepository shipmentRepository,
+            ShipmentEventRepository shipmentEventRepository) {
+        return new TrackShipmentServiceFactory(shipmentRepository, shipmentEventRepository);
     }
 
     @Bean
@@ -66,14 +68,26 @@ public class FactoryConfig {
     }
     
     @Bean
+    AlertEvaluator alertEvaluator(AlertProperties alertProperties) {
+        return new AlertEvaluator(
+            alertProperties.getTemperature().getMin(),
+            alertProperties.getTemperature().getMax(),
+            alertProperties.getHumidity().getMin(),
+            alertProperties.getHumidity().getMax()
+        );
+    }
+
+    @Bean
     GenerateDeliveryReportUseCase generateDeliveryReportUseCase(
             ShipmentRepository shipmentRepository,
             SensorReadingRepository sensorReadingRepository,
-            DeliveryReportRepository deliveryReportRepository) {
+            DeliveryReportRepository deliveryReportRepository,
+            AlertEvaluator alertEvaluator) {
         return new GenerateDeliveryReportService(
             shipmentRepository, 
             sensorReadingRepository, 
-            deliveryReportRepository
+            deliveryReportRepository,
+            alertEvaluator
         );
     }
     
@@ -103,12 +117,14 @@ public class FactoryConfig {
             RegisterSensorReadingUseCase registerSensorReadingUseCase,
             GenerateDeliveryReportUseCase generateDeliveryReportUseCase,
             SensorReadingRepository sensorReadingRepository,
-            ProductRepository productRepository) {
+            ProductRepository productRepository,
+            AlertEvaluator alertEvaluator) {
         return new SupplyChainFacadeImpl(
                 trackShipmentUseCase,
                 registerSensorReadingUseCase,
                 generateDeliveryReportUseCase,
                 sensorReadingRepository,
-                productRepository);
+                productRepository,
+                alertEvaluator);
     }
 }

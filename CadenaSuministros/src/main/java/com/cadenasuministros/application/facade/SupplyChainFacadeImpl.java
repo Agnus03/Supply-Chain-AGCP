@@ -16,6 +16,7 @@ import com.cadenasuministros.domain.port.in.RegisterSensorReadingUseCase;
 import com.cadenasuministros.domain.port.in.TrackShipmentUseCase;
 import com.cadenasuministros.domain.port.out.ProductRepository;
 import com.cadenasuministros.domain.port.out.SensorReadingRepository;
+import com.cadenasuministros.domain.service.AlertEvaluator;
 
 public class SupplyChainFacadeImpl implements SupplyChainFacade {
 
@@ -24,18 +25,21 @@ public class SupplyChainFacadeImpl implements SupplyChainFacade {
     private final GenerateDeliveryReportUseCase generateDeliveryReportUseCase;
     private final SensorReadingRepository sensorReadingRepository;
     private final ProductRepository productRepository;
+    private final AlertEvaluator alertEvaluator;
 
     public SupplyChainFacadeImpl(
             TrackShipmentUseCase trackShipmentUseCase,
             RegisterSensorReadingUseCase registerSensorReadingUseCase,
             GenerateDeliveryReportUseCase generateDeliveryReportUseCase,
             SensorReadingRepository sensorReadingRepository,
-            ProductRepository productRepository) {
+            ProductRepository productRepository,
+            AlertEvaluator alertEvaluator) {
         this.trackShipmentUseCase = trackShipmentUseCase;
         this.registerSensorReadingUseCase = registerSensorReadingUseCase;
         this.generateDeliveryReportUseCase = generateDeliveryReportUseCase;
         this.sensorReadingRepository = sensorReadingRepository;
         this.productRepository = productRepository;
+        this.alertEvaluator = alertEvaluator;
     }
 
     @Override
@@ -159,7 +163,7 @@ public class SupplyChainFacadeImpl implements SupplyChainFacade {
     }
 
     private SensorReadingResult toSensorReadingResult(SensorReading reading) {
-        boolean alert = isAlertCondition(reading.temperatureC(), reading.humidityPct());
+        boolean alert = alertEvaluator.isAnyAlert(reading.temperatureC(), reading.humidityPct());
         return new SensorReadingResult(
                 reading.id(),
                 reading.shipmentId(),
@@ -188,7 +192,7 @@ public class SupplyChainFacadeImpl implements SupplyChainFacade {
                 .orElse(0);
 
         SensorReading last = readings.get(readings.size() - 1);
-        boolean withinRange = !isAlertCondition(last.temperatureC(), last.humidityPct());
+        boolean withinRange = !alertEvaluator.isAnyAlert(last.temperatureC(), last.humidityPct());
 
         return new Dashboard.SensorStats(
                 readings.size(),
@@ -202,13 +206,23 @@ public class SupplyChainFacadeImpl implements SupplyChainFacade {
 
     private List<Dashboard.AlertInfo> generateAlerts(List<SensorReading> readings) {
         return readings.stream()
-                .filter(r -> isAlertCondition(r.temperatureC(), r.humidityPct()))
-                .map(r -> new Dashboard.AlertInfo(
-                        "TEMPERATURE",
-                        "Lectura fuera de rango: Temp=" + r.temperatureC() + ", Hum=" + r.humidityPct(),
-                        formatInstant(r.timestamp()),
-                        false
-                ))
+                .filter(r -> alertEvaluator.isAnyAlert(r.temperatureC(), r.humidityPct()))
+                .map(r -> {
+                    String reason;
+                    if (alertEvaluator.isTemperatureAlert(r.temperatureC()) && alertEvaluator.isHumidityAlert(r.humidityPct())) {
+                        reason = "Temp y Hum fuera de rango";
+                    } else if (alertEvaluator.isTemperatureAlert(r.temperatureC())) {
+                        reason = "Temperatura fuera de rango (" + alertEvaluator.getTempMin() + "-" + alertEvaluator.getTempMax() + "°C)";
+                    } else {
+                        reason = "Humedad fuera de rango (" + alertEvaluator.getHumMin() + "-" + alertEvaluator.getHumMax() + "%)";
+                    }
+                    return new Dashboard.AlertInfo(
+                            "ENVIRONMENTAL",
+                            reason + ": Temp=" + r.temperatureC() + "°C, Hum=" + r.humidityPct() + "%",
+                            formatInstant(r.timestamp()),
+                            false
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
@@ -241,10 +255,6 @@ public class SupplyChainFacadeImpl implements SupplyChainFacade {
             alerts.add("Alerta de humedad");
         }
         return alerts;
-    }
-
-    private boolean isAlertCondition(Double temp, Double humidity) {
-        return temp != null && (temp > 30 || temp < 2);
     }
 
     private String estimateDelivery(String status) {

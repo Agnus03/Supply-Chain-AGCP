@@ -1,73 +1,101 @@
-import { useState, useEffect } from 'react';
-import SensorsPage from './pages/SensorsPage';
-import ShipmentsPage from './pages/ShipmentsPage';
-import ReportsPage from './pages/ReportsPage';
-import ProductsPage from './pages/ProductsPage';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
+import { DashboardPage } from './pages/DashboardPage';
+import { ProductsPage } from './pages/ProductsPage';
+import { SensorsPage } from './pages/SensorsPage';
+import { ShipmentsPage } from './pages/ShipmentsPage';
+import { ReportsPage } from './pages/ReportsPage';
+import { AlertCenter } from './components/AlertCenter';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
-type Page = 'products' | 'sensors' | 'shipments' | 'reports';
+const THEME_KEY = 'logistrictrack-theme';
 
-function App() {
-  const [currentPage, setCurrentPage] = useState<Page>('products');
-
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('logistictrack-theme') || 'light';
-  });
-
+function useTheme() {
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('logistictrack-theme', theme);
-  }, [theme]);
+    const stored = localStorage.getItem(THEME_KEY) || 'dark';
+    document.documentElement.setAttribute('data-theme', stored);
+  }, []);
+}
+
+const NAV_ITEMS = [
+  { path: '/', label: 'Dashboard', icon: '◈' },
+  { path: '/productos', label: 'Productos', icon: '◎' },
+  { path: '/sensores', label: 'Sensores', icon: '◉' },
+  { path: '/envios', label: 'Envíos', icon: '◇' },
+  { path: '/reportes', label: 'Reportes', icon: '□' },
+];
+
+function PageShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="page-enter">
+      <ErrorBoundary>{children}</ErrorBoundary>
+    </div>
+  );
+}
+
+function AppLayout() {
+  useTheme();
 
   const toggleTheme = () => {
-    setTheme((t) => (t === 'light' ? 'dark' : 'light'));
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem(THEME_KEY, next);
   };
 
-  const navItems: { id: Page; label: string }[] = [
-    { id: 'products', label: 'Productos' },
-    { id: 'sensors', label: 'Sensores' },
-    { id: 'shipments', label: 'Envíos' },
-    { id: 'reports', label: 'Reportes' },
-  ];
-
   return (
-    <div>
+    <div className="app-shell">
       <header className="app-header">
         <div className="app-header-inner">
-          <div className="app-logo">
-            <span className="app-logo-icon">🚚</span>
-            <span>LogisticTrack</span>
-          </div>
+          <NavLink to="/" className="app-logo">
+            <span className="app-logo-icon">◇</span>
+            <span className="app-logo-text">LogisticTrack</span>
+          </NavLink>
           <nav className="app-nav">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                className={`nav-link ${currentPage === item.id ? 'active' : ''}`}
-                onClick={() => setCurrentPage(item.id)}
+            {NAV_ITEMS.map(item => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === '/'}
+                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
               >
-                {item.label}
-              </button>
+                <span className="nav-link-icon">{item.icon}</span>
+                <span className="nav-link-label">{item.label}</span>
+              </NavLink>
             ))}
           </nav>
-          <button
-            className="theme-toggle"
-            onClick={toggleTheme}
-            title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}
-          >
-            {theme === 'light' ? '🌙' : '☀️'}
-          </button>
+          <div className="app-header-actions">
+            <AlertCenter />
+            <button
+              className="theme-toggle"
+              onClick={toggleTheme}
+              title="Cambiar tema"
+              aria-label="Cambiar tema"
+            >
+              <span className="theme-toggle-icon" />
+            </button>
+          </div>
         </div>
       </header>
-
-      <main style={{ paddingTop: '1.5rem' }}>
-        <div className="container">
-          {currentPage === 'products' && <ProductsPage />}
-          {currentPage === 'sensors' && <SensorsPage />}
-          {currentPage === 'shipments' && <ShipmentsPage />}
-          {currentPage === 'reports' && <ReportsPage />}
+      <main className="app-main">
+        <div className="app-container">
+          <Routes>
+            <Route path="/" element={<PageShell><DashboardPage /></PageShell>} />
+            <Route path="/productos" element={<PageShell><ProductsPage /></PageShell>} />
+            <Route path="/sensores" element={<PageShell><SensorsPage /></PageShell>} />
+            <Route path="/envios" element={<PageShell><ShipmentsPage /></PageShell>} />
+            <Route path="/reportes" element={<PageShell><ReportsPage /></PageShell>} />
+          </Routes>
         </div>
       </main>
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppLayout />
+    </BrowserRouter>
+  );
+}
