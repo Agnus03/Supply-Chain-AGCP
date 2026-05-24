@@ -15,4 +15,5 @@ public class SensorReadingJpaEntity {
     public Double humidityPct;
     public Double latitude;
     public Double longitude;
+    public Boolean acknowledged;
 }

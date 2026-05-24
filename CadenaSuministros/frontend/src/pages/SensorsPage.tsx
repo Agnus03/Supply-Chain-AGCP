@@ -3,11 +3,7 @@ import type { SensorReading } from '../types';
 import { sensorService } from '../api/sensorService';
 import { SensorList } from '../components/SensorList';
 import { SensorRegister } from '../components/SensorRegister';
-
-function isTemperatureAlert(temp: number | null | undefined): boolean {
-  if (temp === null || temp === undefined) return false;
-  return temp > 30 || temp < 2;
-}
+import { isTempAlert } from '../utils/alertHelpers';
 
 export function SensorsPage() {
   const [readings, setReadings] = useState<SensorReading[]>([]);
@@ -36,7 +32,7 @@ export function SensorsPage() {
     let alertCount = 0;
     for (const r of readings) {
       shipmentSet.add(r.shipmentId);
-      if (isTemperatureAlert(r.temperatureC)) alertCount++;
+      if (isTempAlert(r.temperatureC)) alertCount++;
     }
     return {
       totalReadings: readings.length,

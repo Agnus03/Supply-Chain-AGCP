@@ -2,13 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Shipment, DeliveryReport } from '../types';
 import { shipmentService } from '../api/shipmentService';
 import { reportService } from '../api/reportService';
-
-const STATUS_LABELS: Record<string, string> = {
-  PENDING: 'Pendiente',
-  IN_TRANSIT: 'En tránsito',
-  DELIVERED: 'Entregado',
-  DELAYED: 'Retrasado',
-};
+import { STATUS_LABELS } from '../utils/constants';
 
 function ReportMetric({
   label,

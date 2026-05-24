@@ -77,7 +77,7 @@ public class JpaAdapters implements ShipmentRepository, SensorReadingRepository,
     }
 
     private SensorReading toDomain(SensorReadingJpaEntity e) {
-        return new SensorReading(e.id, e.shipmentId, e.timestamp, e.temperatureC, e.humidityPct, e.latitude, e.longitude);
+        return new SensorReading(e.id, e.shipmentId, e.timestamp, e.temperatureC, e.humidityPct, e.latitude, e.longitude, e.acknowledged != null && e.acknowledged);
     }
 
     private SensorReadingJpaEntity toEntity(SensorReading d) {
@@ -89,6 +89,7 @@ public class JpaAdapters implements ShipmentRepository, SensorReadingRepository,
         e.humidityPct = d.humidityPct();
         e.latitude = d.latitude();
         e.longitude = d.longitude();
+        e.acknowledged = d.acknowledged();
         return e;
     }
 

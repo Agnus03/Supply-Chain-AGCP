@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import com.cadenasuministros.application.facade.ShipmentInfo;
 import com.cadenasuministros.application.facade.SupplyChainFacade;
 import com.cadenasuministros.domain.model.Shipment;
+import com.cadenasuministros.domain.model.ShipmentEvent;
 import com.cadenasuministros.domain.port.in.TrackShipmentUseCase;
 
 @RestController
@@ -55,10 +56,29 @@ public class ShipmentController {
         return trackShipmentUseCase.create(shipment);
     }
 
+    @GetMapping("/{id}/history")
+    public List<ShipmentEvent> getHistory(@PathVariable UUID id) {
+        return trackShipmentUseCase.getHistory(id);
+    }
+
+    @PatchMapping("/{id}/status")
+    public Shipment updateStatus(@PathVariable UUID id, @RequestBody StatusUpdateRequest request) {
+        return trackShipmentUseCase.updateStatus(id, request.status());
+    }
+
+    @PatchMapping("/{id}/location")
+    public Shipment updateLocation(@PathVariable UUID id, @RequestBody LocationUpdateRequest request) {
+        return trackShipmentUseCase.updateLocation(id, request.currentLocation());
+    }
+
     public record ShipmentRequest(
         String productId,
         String status,
         String currentLocation
     ) {}
+
+    public record StatusUpdateRequest(String status) {}
+
+    public record LocationUpdateRequest(String currentLocation) {}
 
 }

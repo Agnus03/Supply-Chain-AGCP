@@ -10,8 +10,16 @@ public record SensorReading(
         Double temperatureC,
         Double humidityPct,
         Double latitude,
-        Double longitude
+        Double longitude,
+        boolean acknowledged
 ) {
+
+	public SensorReading(
+            UUID id, UUID shipmentId, Instant timestamp,
+            Double temperatureC, Double humidityPct,
+            Double latitude, Double longitude) {
+        this(id, shipmentId, timestamp, temperatureC, humidityPct, latitude, longitude, false);
+    }
 
 	public UUID id() {
 		return id;
@@ -39,4 +47,13 @@ public record SensorReading(
 
 	public Double longitude() {
 		return longitude;
-	}}
+	}
+
+	public boolean acknowledged() {
+        return acknowledged;
+    }
+
+    public SensorReading withAcknowledged(boolean ack) {
+        return new SensorReading(id, shipmentId, timestamp, temperatureC, humidityPct, latitude, longitude, ack);
+    }
+}

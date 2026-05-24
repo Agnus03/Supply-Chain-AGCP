@@ -11,6 +11,7 @@ const baseReading: SensorReading = {
   humidityPct: null,
   latitude: null,
   longitude: null,
+  acknowledged: false,
 }
 
 const onRefresh = vi.fn()

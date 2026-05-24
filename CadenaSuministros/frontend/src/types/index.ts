@@ -22,6 +22,7 @@ export interface SensorReading {
   humidityPct: number | null;
   latitude: number | null;
   longitude: number | null;
+  acknowledged: boolean;
 }
 
 export interface SensorReadingRequest {
@@ -130,4 +131,31 @@ export interface EnvironmentalStats {
   minHumidity: number;
   maxHumidity: number;
   totalReadings: number;
+}
+
+export interface ShipmentEvent {
+  id: string;
+  shipmentId: string;
+  fromStatus: string | null;
+  toStatus: string;
+  fromLocation: string | null;
+  toLocation: string;
+  timestamp: string;
+}
+
+export interface TrendPoint {
+  timestamp: string;
+  avgTemperature: number;
+  avgHumidity: number;
+}
+
+export interface DashboardAlert {
+  id: string;
+  shipmentId: string;
+  type: string;
+  message: string;
+  timestamp: string;
+  acknowledged: boolean;
+  temperatureC: number | null;
+  humidityPct: number | null;
 }

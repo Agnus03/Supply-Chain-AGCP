@@ -2,17 +2,11 @@ import { useState, useEffect } from 'react';
 import type { Shipment, SensorReadingRequest } from '../types';
 import { shipmentService } from '../api/shipmentService';
 import { sensorService } from '../api/sensorService';
+import { STATUS_LABELS } from '../utils/constants';
 
 interface SensorRegisterProps {
   onSuccess: () => void;
 }
-
-const STATUS_LABELS: Record<string, string> = {
-  PENDING: 'Pendiente',
-  IN_TRANSIT: 'En tránsito',
-  DELIVERED: 'Entregado',
-  DELAYED: 'Retrasado',
-};
 
 export function SensorRegister({ onSuccess }: SensorRegisterProps) {
   const [shipments, setShipments] = useState<Shipment[]>([]);

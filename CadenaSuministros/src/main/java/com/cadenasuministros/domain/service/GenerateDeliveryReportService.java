@@ -18,13 +18,16 @@ public class GenerateDeliveryReportService implements GenerateDeliveryReportUseC
     private final ShipmentRepository shipmentRepository;
     private final SensorReadingRepository sensorReadingRepository;
     private final DeliveryReportRepository deliveryReportRepository;
+    private final AlertEvaluator alertEvaluator;
 
     public GenerateDeliveryReportService(ShipmentRepository shipmentRepository,
                                          SensorReadingRepository sensorReadingRepository,
-                                         DeliveryReportRepository deliveryReportRepository) {
+                                         DeliveryReportRepository deliveryReportRepository,
+                                         AlertEvaluator alertEvaluator) {
         this.shipmentRepository = shipmentRepository;
         this.sensorReadingRepository = sensorReadingRepository;
         this.deliveryReportRepository = deliveryReportRepository;
+        this.alertEvaluator = alertEvaluator;
     }
 
     @Override
@@ -34,7 +37,6 @@ public class GenerateDeliveryReportService implements GenerateDeliveryReportUseC
 
         List<SensorReading> readings = sensorReadingRepository.findByShipmentId(shipmentId);
         
-        // Si no hay lecturas, usar valores por defecto
         if (readings == null || readings.isEmpty()) {
             System.out.println("No se encontraron lecturas para shipment: " + shipmentId);
         }
@@ -49,16 +51,16 @@ public class GenerateDeliveryReportService implements GenerateDeliveryReportUseC
                 .mapToDouble(SensorReading::humidityPct)
                 .summaryStatistics();
 
-        Double avgTemp = tempStats.getCount() > 0 ? tempStats.getAverage() : 0.0;
-        Double avgHum  = humStats.getCount()  > 0 ? humStats.getAverage()  : 0.0;
+        Double avgTemp = tempStats.getCount() > 0 ? tempStats.getAverage() : null;
+        Double avgHum  = humStats.getCount()  > 0 ? humStats.getAverage()  : null;
 
-        boolean tempAlert = avgTemp != 0.0 && (avgTemp < 2 || avgTemp > 30);
-        boolean humAlert  = avgHum  != 0.0 && (avgHum  < 30 || avgHum  > 80);
+        boolean tempAlert = avgTemp != null && alertEvaluator.isTemperatureAlert(avgTemp);
+        boolean humAlert  = avgHum  != null && alertEvaluator.isHumidityAlert(avgHum);
 
         DeliveryReport report = new DeliveryReport.Builder()
                 .reportId(UUID.randomUUID())
                 .shipmentId(shipment.id())
-                .productId(shipment.productId()) // Obtener productId del shipment
+                .productId(shipment.productId())
                 .origin("Bodega origen")
                 .destination(shipment.currentLocation())
                 .dispatchTime(shipment.updatedAt())
