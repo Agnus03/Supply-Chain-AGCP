@@ -16,7 +16,7 @@ function renderComponent() {
 describe('ProductCreate - Creación de producto en cadena de suministro', () => {
   it('renderiza el formulario de creación', () => {
     renderComponent()
-    expect(screen.getByText('Crear Nuevo Producto')).toBeInTheDocument()
+    expect(screen.getByText('Nuevo Producto')).toBeInTheDocument()
     expect(screen.getByLabelText('SKU')).toBeInTheDocument()
     expect(screen.getByLabelText('Nombre')).toBeInTheDocument()
   })

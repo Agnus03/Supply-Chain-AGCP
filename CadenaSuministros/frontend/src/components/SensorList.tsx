@@ -1,113 +1,126 @@
+import { memo, useState } from 'react';
 import type { SensorReading } from '../types';
-import { isTempAlert } from '../utils/alertHelpers';
+import { isTempAlert, isHumAlert } from '../utils/alertHelpers';
 
 interface SensorListProps {
   readings: SensorReading[];
   shipmentId?: string;
   loading: boolean;
   error: string | null;
-  onRefresh: () => void;
+  onRefresh?: () => void;
 }
 
-function TempIndicator({ value }: { value: number | null }) {
-  if (value === null || value === undefined) return <span className="text-secondary">-</span>;
-  const alert = isTempAlert(value);
+const TempBadge = memo(function TempBadge({ value }: { value: number | null }) {
+  if (value == null) return <span className="text-secondary">—</span>;
   return (
-    <span className={alert ? 'temp-danger' : 'temp-normal'}>
-      {value.toFixed(1)}
+    <span className={`sen-temp ${isTempAlert(value) ? 'alert' : 'ok'}`}>
+      {value.toFixed(1)}°C
     </span>
   );
-}
+});
 
-export function SensorList({ readings, shipmentId, loading, error, onRefresh }: SensorListProps) {
+const HumBadge = memo(function HumBadge({ value }: { value: number | null }) {
+  if (value == null) return <span className="text-secondary">—</span>;
+  return (
+    <span className={`sen-hum ${isHumAlert(value) ? 'alert' : 'ok'}`}>
+      {value.toFixed(1)}%
+    </span>
+  );
+});
+
+export const SensorList = memo(function SensorList({
+  readings, shipmentId, loading, error,
+}: SensorListProps) {
+  const [open, setOpen] = useState(true);
+
   if (loading) {
     return (
-      <div className="card">
-        <p>Cargando lecturas...</p>
+      <div className="sen-group">
+        <div className="sen-group-head">
+          <span className="sen-group-id">Cargando...</span>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="card">
-        <p style={{ color: 'var(--danger)' }}>Error: {error}</p>
-        <button className="btn btn-primary" onClick={onRefresh} style={{ marginTop: '1rem' }}>
-          Reintentar
-        </button>
+      <div className="sen-group">
+        <div className="sen-group-head">
+          <span style={{ color: 'var(--danger)' }}>Error: {error}</span>
+        </div>
       </div>
     );
   }
 
   if (readings.length === 0) {
     return (
-      <div className="card">
-        <p style={{ color: 'var(--text-secondary)' }}>
-          No hay lecturas registradas.
-        </p>
+      <div className="sen-group">
+        <div className="sen-group-head">
+          <span className="text-secondary">Sin lecturas</span>
+        </div>
       </div>
     );
   }
 
-  const alertCount = readings.filter((r) => isTempAlert(r.temperatureC)).length;
+  const alertCount = readings.filter((r) => isTempAlert(r.temperatureC) || isHumAlert(r.humidityPct)).length;
 
   return (
-    <div className="card">
-      <div className="card-header">
-        <div className="flex items-center gap-3">
-          <span className="card-title">
-            {shipmentId ? (
-              <>Envío <span className="font-mono">{shipmentId.slice(0, 8)}</span></>
-            ) : (
-              <>Lecturas de Sensores</>
-            )}
-            <span className="text-secondary font-medium" style={{ marginLeft: '0.5rem' }}>
-              ({readings.length})
-            </span>
+    <div className="sen-group">
+      <div className="sen-group-head" onClick={() => setOpen((o) => !o)}>
+        <div className="sen-group-left">
+          <span className="sen-group-dot delivered" />
+          <span className="sen-group-id">
+            {shipmentId ? shipmentId.slice(0, 8) : 'Lecturas'}
           </span>
+          <span className="sen-group-meta">
+            {readings.length} lectura{readings.length !== 1 ? 's' : ''}
+            {alertCount > 0 && ` · ${alertCount} alerta${alertCount !== 1 ? 's' : ''}`}
+          </span>
+        </div>
+        <div className="sen-group-right">
           {alertCount > 0 && (
-            <span className="alert-badge alert-danger">
-              ⚠ {alertCount} alerta{alertCount !== 1 ? 's' : ''}
+            <span className="alert-badge alert-danger" style={{ padding: '0.125rem 0.5rem', fontSize: '0.625rem' }}>
+              ⚠ {alertCount}
             </span>
           )}
+          <span className={`sen-group-arrow ${open ? 'open' : ''}`}>▾</span>
         </div>
-        <button className="btn btn-primary btn-sm" onClick={onRefresh}>
-          Actualizar
-        </button>
       </div>
 
-      <div className="overflow-auto">
-        <table className="table-enhanced">
+      <div
+        className="sen-group-body"
+        style={{ maxHeight: open ? `${readings.length * 42 + 42}px` : '0' }}
+      >
+        <table className="sen-group-table">
           <thead>
             <tr>
-              {!shipmentId && <th>Shipment</th>}
               <th>Fecha</th>
-              <th style={{ textAlign: 'right' }}>Temp (°C)</th>
-              <th style={{ textAlign: 'right' }}>Humedad (%)</th>
+              <th style={{ textAlign: 'right' }}>Temp</th>
+              <th style={{ textAlign: 'right' }}>Humedad</th>
               <th style={{ textAlign: 'right' }}>Lat</th>
               <th style={{ textAlign: 'right' }}>Lng</th>
             </tr>
           </thead>
           <tbody>
-            {readings.map((reading) => (
-              <tr key={reading.id}>
-                {!shipmentId && (
-                  <td className="font-mono text-sm">{reading.shipmentId.slice(0, 8)}</td>
-                )}
+            {readings.map((r) => (
+              <tr key={r.id}>
                 <td style={{ whiteSpace: 'nowrap' }}>
-                  {new Date(reading.timestamp).toLocaleString('es-CO')}
+                  {new Date(r.timestamp).toLocaleString('es-CO', {
+                    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
+                  })}
                 </td>
                 <td style={{ textAlign: 'right' }}>
-                  <TempIndicator value={reading.temperatureC} />
+                  <TempBadge value={r.temperatureC} />
                 </td>
                 <td style={{ textAlign: 'right' }}>
-                  {reading.humidityPct?.toFixed(1) ?? '-'}
+                  <HumBadge value={r.humidityPct} />
                 </td>
-                <td style={{ textAlign: 'right' }} className="font-mono text-sm">
-                  {reading.latitude?.toFixed(4) ?? '-'}
+                <td style={{ textAlign: 'right' }} className="font-mono">
+                  {r.latitude?.toFixed(4) ?? '—'}
                 </td>
-                <td style={{ textAlign: 'right' }} className="font-mono text-sm">
-                  {reading.longitude?.toFixed(4) ?? '-'}
+                <td style={{ textAlign: 'right' }} className="font-mono">
+                  {r.longitude?.toFixed(4) ?? '—'}
                 </td>
               </tr>
             ))}
@@ -116,6 +129,6 @@ export function SensorList({ readings, shipmentId, loading, error, onRefresh }: 
       </div>
     </div>
   );
-}
+});
 
 export default SensorList;

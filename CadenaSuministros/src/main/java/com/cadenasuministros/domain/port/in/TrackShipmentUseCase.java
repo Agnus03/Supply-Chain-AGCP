@@ -4,6 +4,7 @@ import com.cadenasuministros.domain.model.Shipment;
 import com.cadenasuministros.domain.model.ShipmentEvent;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface TrackShipmentUseCase {
@@ -13,4 +14,7 @@ public interface TrackShipmentUseCase {
     Shipment updateLocation(UUID shipmentId, String newLocation);
     List<Shipment> listAll();
     List<ShipmentEvent> getHistory(UUID shipmentId);
+    Optional<Shipment> undoLast();
+    Optional<Shipment> undoForShipment(UUID shipmentId);
+    List<String> getCommandHistory();
 }

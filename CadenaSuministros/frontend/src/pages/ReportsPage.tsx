@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
-import type { Shipment, DeliveryReport } from '../types';
+import { memo, useState, useEffect, useCallback } from 'react';
+import { PageHeader } from '../components/PageHeader';
+import type { Shipment, DeliveryReport, ShipmentStatus } from '../types';
 import { shipmentService } from '../api/shipmentService';
 import { reportService } from '../api/reportService';
-import { STATUS_LABELS } from '../utils/constants';
+import { SHIPMENT_STATE_CONFIG, STATUS_LABELS } from '../utils/constants';
 
-function ReportMetric({
+const ReportMetric = memo(function ReportMetric({
   label,
   value,
   variant,
@@ -21,9 +22,9 @@ function ReportMetric({
       </div>
     </div>
   );
-}
+});
 
-function ReportSection({ title, children }: { title: string; children: React.ReactNode }) {
+const ReportSection = memo(function ReportSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: '1.5rem' }}>
       <h4
@@ -43,7 +44,7 @@ function ReportSection({ title, children }: { title: string; children: React.Rea
       {children}
     </div>
   );
-}
+});
 
 export function ReportsPage() {
   const [shipments, setShipments] = useState<Shipment[]>([]);
@@ -68,7 +69,7 @@ export function ReportsPage() {
     loadShipments();
   }, []);
 
-  const generateReport = async () => {
+  const generateReport = useCallback(async () => {
     if (!selectedShipmentId) return;
 
     setLoadingReport(true);
@@ -83,16 +84,11 @@ export function ReportsPage() {
     } finally {
       setLoadingReport(false);
     }
-  };
+  }, [selectedShipmentId]);
 
   return (
     <div>
-      <div className="section-header">
-        <h1 className="section-title">Reportes de Entrega</h1>
-        <p className="section-subtitle">
-          Genera reportes con estadísticas ambientales de tus envíos
-        </p>
-      </div>
+      <PageHeader title="Reportes de Entrega" subtitle="Genera reportes con estadísticas ambientales de tus envíos" />
 
       <div className="grid-3">
         <div className="card">
@@ -171,15 +167,7 @@ export function ReportsPage() {
                   <div>
                     <div className="text-xs text-secondary font-medium">Estado</div>
                     <span
-                      className={`badge badge-status ${
-                        report.deliveryStatus === 'DELIVERED'
-                          ? 'badge-delivered'
-                          : report.deliveryStatus === 'DELAYED'
-                          ? 'badge-delayed'
-                          : report.deliveryStatus === 'IN_TRANSIT'
-                          ? 'badge-transit'
-                          : 'badge-pending'
-                      }`}
+                      className={`badge badge-status ${SHIPMENT_STATE_CONFIG[report.deliveryStatus as ShipmentStatus]?.badgeClass ?? 'badge-pending'}`}
                     >
                       {STATUS_LABELS[report.deliveryStatus] || report.deliveryStatus}
                     </span>

@@ -71,6 +71,17 @@ public class ShipmentController {
         return trackShipmentUseCase.updateLocation(id, request.currentLocation());
     }
 
+    @PostMapping("/{id}/undo")
+    public Shipment undo(@PathVariable UUID id) {
+        return trackShipmentUseCase.undoForShipment(id)
+                .orElseThrow(() -> new IllegalStateException("No hay operaciones para deshacer para el envío: " + id));
+    }
+
+    @GetMapping("/commands")
+    public List<String> getCommandHistory() {
+        return trackShipmentUseCase.getCommandHistory();
+    }
+
     public record ShipmentRequest(
         String productId,
         String status,

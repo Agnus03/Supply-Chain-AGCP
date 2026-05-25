@@ -79,8 +79,6 @@ export function ShipmentCreate({ onSuccess }: ShipmentCreateProps) {
           >
             <option value="PENDING">Pendiente</option>
             <option value="IN_TRANSIT">En tránsito</option>
-            <option value="DELIVERED">Entregado</option>
-            <option value="DELAYED">Retrasado</option>
           </select>
         </div>
 

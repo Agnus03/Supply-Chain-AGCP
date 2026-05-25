@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Component
 public class JpaAdapters implements ShipmentRepository, SensorReadingRepository, DeliveryReportRepository, ProductRepository {
 
     private final SpringDataShipmentRepository shipmentRepo;

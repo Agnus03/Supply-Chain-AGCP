@@ -68,15 +68,24 @@ export function SensorRegister({ onSuccess }: SensorRegisterProps) {
       }));
     };
 
-  return (
-    <div className="card">
-      <h3 className="card-title mb-4">Registrar Lectura</h3>
+  const canSubmit = formData.shipmentId && shipments.length > 0;
 
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="shipmentId">Seleccionar Envío</label>
+  return (
+    <div className="sen-form">
+      <div className="sen-form-head">
+        <div className="sen-form-icon">📡</div>
+        <div>
+          <div className="sen-form-title">Nueva Lectura</div>
+          <div className="sen-form-sub">Registrar medición de sensores</div>
+        </div>
+      </div>
+
+      <form className="sen-form-body" onSubmit={handleSubmit}>
+        <div className="sen-field">
+          <label className="sen-label" htmlFor="sen-shipment">Envío</label>
           <select
-            id="shipmentId"
+            id="sen-shipment"
+            className="sen-select"
             value={formData.shipmentId}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, shipmentId: e.target.value }))
@@ -85,28 +94,27 @@ export function SensorRegister({ onSuccess }: SensorRegisterProps) {
             disabled={loadingShipments}
           >
             <option value="">
-              {loadingShipments ? 'Cargando...' : '-- Seleccionar --'}
+              {loadingShipments ? 'Cargando...' : '— Seleccionar —'}
             </option>
-            {shipments.map((shipment) => (
-              <option key={shipment.id} value={shipment.id}>
-                {shipment.id.slice(0, 8)} -{' '}
-                {STATUS_LABELS[shipment.status] || shipment.status} (
-                {shipment.currentLocation})
+            {shipments.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.id.slice(0, 8)} — {STATUS_LABELS[s.status] || s.status} ({s.currentLocation})
               </option>
             ))}
           </select>
           {shipments.length === 0 && !loadingShipments && (
-            <p className="text-xs text-secondary mt-2">
+            <p style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
               No hay envíos disponibles. Crea un envío primero.
             </p>
           )}
         </div>
 
-        <div className="grid-2">
-          <div className="form-group">
-            <label htmlFor="temperatureC">Temperatura (°C)</label>
+        <div className="sen-form-row">
+          <div className="sen-field">
+            <label className="sen-label" htmlFor="sen-temp">Temperatura (°C)</label>
             <input
-              id="temperatureC"
+              id="sen-temp"
+              className="sen-input"
               type="number"
               step="0.1"
               value={formData.temperatureC ?? ''}
@@ -114,10 +122,11 @@ export function SensorRegister({ onSuccess }: SensorRegisterProps) {
               placeholder="25.0"
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="humidityPct">Humedad (%)</label>
+          <div className="sen-field">
+            <label className="sen-label" htmlFor="sen-hum">Humedad (%)</label>
             <input
-              id="humidityPct"
+              id="sen-hum"
+              className="sen-input"
               type="number"
               step="0.1"
               value={formData.humidityPct ?? ''}
@@ -127,11 +136,12 @@ export function SensorRegister({ onSuccess }: SensorRegisterProps) {
           </div>
         </div>
 
-        <div className="grid-2">
-          <div className="form-group">
-            <label htmlFor="latitude">Latitud</label>
+        <div className="sen-form-row">
+          <div className="sen-field">
+            <label className="sen-label" htmlFor="sen-lat">Latitud</label>
             <input
-              id="latitude"
+              id="sen-lat"
+              className="sen-input"
               type="number"
               step="0.0001"
               value={formData.latitude ?? ''}
@@ -139,10 +149,11 @@ export function SensorRegister({ onSuccess }: SensorRegisterProps) {
               placeholder="4.7110"
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="longitude">Longitud</label>
+          <div className="sen-field">
+            <label className="sen-label" htmlFor="sen-lng">Longitud</label>
             <input
-              id="longitude"
+              id="sen-lng"
+              className="sen-input"
               type="number"
               step="0.0001"
               value={formData.longitude ?? ''}
@@ -153,17 +164,31 @@ export function SensorRegister({ onSuccess }: SensorRegisterProps) {
         </div>
 
         {error && (
-          <div className="alert-badge alert-danger w-full mb-4" style={{ justifyContent: 'center' }}>
+          <div style={{
+            fontSize: '0.75rem', color: 'var(--danger)',
+            background: 'rgba(239,68,68,0.08)',
+            border: '1px solid rgba(239,68,68,0.2)',
+            borderRadius: 'var(--radius-sm)',
+            padding: '0.5rem 0.75rem', marginBottom: '0.75rem',
+            lineHeight: '1.4',
+          }}>
             {error}
           </div>
         )}
 
         <button
           type="submit"
-          className="btn btn-primary w-full"
-          disabled={loading || loadingShipments || shipments.length === 0}
+          className="sen-submit"
+          disabled={loading || loadingShipments || !canSubmit}
         >
-          {loading ? 'Registrando...' : 'Registrar Lectura'}
+          {loading ? (
+            <span className="cp-submit-loading">
+              <span className="cp-spinner" />
+              Registrando...
+            </span>
+          ) : (
+            '📡 Registrar Lectura'
+          )}
         </button>
       </form>
     </div>
