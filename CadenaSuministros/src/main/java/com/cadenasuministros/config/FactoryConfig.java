@@ -1,5 +1,6 @@
 package com.cadenasuministros.config;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -28,14 +29,16 @@ public class FactoryConfig {
     @Bean
     TrackShipmentUseCaseFactory trackShipmentUseCaseFactory(
             ShipmentRepository shipmentRepository,
-            ShipmentEventRepository shipmentEventRepository) {
-        return new TrackShipmentServiceFactory(shipmentRepository, shipmentEventRepository);
+            ShipmentEventRepository shipmentEventRepository,
+            ApplicationEventPublisher eventPublisher) {
+        return new TrackShipmentServiceFactory(shipmentRepository, shipmentEventRepository, eventPublisher);
     }
 
     @Bean
     RegisterSensorReadingUseCaseFactory registerSensorReadingUseCaseFactory(
-            SensorReadingRepository sensorReadingRepository) {
-        return new RegisterSensorReadingServiceFactory(sensorReadingRepository);
+            SensorReadingRepository sensorReadingRepository,
+            ApplicationEventPublisher eventPublisher) {
+        return new RegisterSensorReadingServiceFactory(sensorReadingRepository, eventPublisher);
     }
 
     @Bean
@@ -82,12 +85,14 @@ public class FactoryConfig {
             ShipmentRepository shipmentRepository,
             SensorReadingRepository sensorReadingRepository,
             DeliveryReportRepository deliveryReportRepository,
-            AlertEvaluator alertEvaluator) {
+            AlertEvaluator alertEvaluator,
+            ApplicationEventPublisher eventPublisher) {
         return new GenerateDeliveryReportService(
             shipmentRepository, 
             sensorReadingRepository, 
             deliveryReportRepository,
-            alertEvaluator
+            alertEvaluator,
+            eventPublisher
         );
     }
     

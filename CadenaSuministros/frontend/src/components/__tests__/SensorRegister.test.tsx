@@ -46,13 +46,13 @@ describe('SensorRegister - Registro de lectura IoT', () => {
 
     await waitFor(() => screen.getByText(/s1/))
 
-    await user.selectOptions(screen.getByLabelText('Seleccionar Envío'), 's1')
+    await user.selectOptions(screen.getByLabelText('Envío'), 's1')
     await user.type(screen.getByLabelText('Temperatura (°C)'), '28.5')
     await user.type(screen.getByLabelText('Humedad (%)'), '65')
     await user.type(screen.getByLabelText('Latitud'), '4.7110')
     await user.type(screen.getByLabelText('Longitud'), '-74.0721')
 
-    await user.click(screen.getByRole('button', { name: 'Registrar Lectura' }))
+    await user.click(screen.getByRole('button', { name: /Registrar Lectura/ }))
 
     expect(fetch).toHaveBeenCalledWith(
       '/api/sensors/readings',
@@ -82,10 +82,10 @@ describe('SensorRegister - Registro de lectura IoT', () => {
 
     await waitFor(() => screen.getByText(/s1/))
 
-    await user.selectOptions(screen.getByLabelText('Seleccionar Envío'), 's2')
+    await user.selectOptions(screen.getByLabelText('Envío'), 's2')
     await user.type(screen.getByLabelText('Latitud'), '6.2442')
     await user.type(screen.getByLabelText('Longitud'), '-75.5812')
-    await user.click(screen.getByRole('button', { name: 'Registrar Lectura' }))
+    await user.click(screen.getByRole('button', { name: /Registrar Lectura/ }))
 
     expect(fetch).toHaveBeenCalledWith(
       '/api/sensors/readings',
@@ -107,7 +107,7 @@ describe('SensorRegister - Registro de lectura IoT', () => {
     setupFetch([])
     render(<SensorRegister onSuccess={onSuccess} />)
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Registrar Lectura' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: /Registrar Lectura/ })).toBeDisabled()
     })
   })
 
@@ -120,9 +120,9 @@ describe('SensorRegister - Registro de lectura IoT', () => {
     render(<SensorRegister onSuccess={onSuccess} />)
     await waitFor(() => screen.getByText(/s1/))
 
-    await user.selectOptions(screen.getByLabelText('Seleccionar Envío'), 's1')
+    await user.selectOptions(screen.getByLabelText('Envío'), 's1')
     await user.type(screen.getByLabelText('Temperatura (°C)'), '30')
-    await user.click(screen.getByRole('button', { name: 'Registrar Lectura' }))
+    await user.click(screen.getByRole('button', { name: /Registrar Lectura/ }))
 
     expect(await screen.findByText(/Sensor fuera de línea/)).toBeInTheDocument()
   })

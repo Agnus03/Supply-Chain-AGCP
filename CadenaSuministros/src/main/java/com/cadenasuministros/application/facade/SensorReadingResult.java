@@ -11,5 +11,6 @@ public record SensorReadingResult(
         Double humidityPct,
         Double latitude,
         Double longitude,
-        boolean alert
+        boolean alert,
+        String status
 ) {}

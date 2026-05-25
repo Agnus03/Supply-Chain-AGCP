@@ -1,9 +1,14 @@
-import { useState, useEffect, Fragment } from 'react';
-import type { ShipmentInfo } from '../types';
+import { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
+import { PageHeader } from '../components/PageHeader';
+import type { ShipmentInfo, ShipmentStatus } from '../types';
 import { shipmentService } from '../api/shipmentService';
-import { ShipmentCreate } from '../components/ShipmentCreate';
 import { ShipmentHistory } from '../components/ShipmentHistory';
-import { STATUS_LABELS, STATUS_ORDER, STATUS_OPTIONS, LOCATION_OPTIONS } from '../utils/constants';
+import { ShipmentDrawer } from '../components/ShipmentDrawer';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import { SHIPMENT_STATE_CONFIG, STATUS_LABELS, STATUS_ORDER, STATUS_OPTIONS, LOCATION_OPTIONS } from '../utils/constants';
+import { wsService } from '../services/websocketService';
+import { UpdateStatusCommand } from '../commands/UpdateStatusCommand';
+import { useCommand } from '../hooks/useCommand';
 
 function getStepIndex(status: string): number {
   if (status === 'DELAYED') return -1;
@@ -17,6 +22,7 @@ function TrackingProgress({ status }: { status: string }) {
   return (
     <div className="tracking-progress">
       {STATUS_ORDER.map((step, i) => {
+        if (step === 'DELAYED') return null;
         const stepClasses = ['tracking-step'];
         if (currentStep > i) stepClasses.push('completed');
         else if (currentStep === i) stepClasses.push('active');
@@ -38,14 +44,24 @@ function TrackingProgress({ status }: { status: string }) {
   );
 }
 
+interface ConfirmAction {
+  shipmentId: string;
+  newStatus: string;
+}
+
 export function ShipmentsPage() {
   const [shipments, setShipments] = useState<ShipmentInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [historyShipmentId, setHistoryShipmentId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
+  const { execute: executeCmd, undo: undoLast, canUndo } = useCommand();
 
-  const fetchShipments = async () => {
+  const fetchShipments = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -56,51 +72,93 @@ export function ShipmentsPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchShipments();
   }, []);
 
-  const handleUpdateStatus = async (id: string, newStatus: string) => {
+  useEffect(() => {
+    const abortController = new AbortController();
+    fetchShipments();
+    return () => abortController.abort();
+  }, [fetchShipments]);
+
+  useEffect(() => {
+    const unsubStatus = wsService.subscribe('/topic/shipments/status', () => {
+      fetchShipments();
+    });
+    const unsubLocation = wsService.subscribe('/topic/shipments/location', () => {
+      fetchShipments();
+    });
+    return () => {
+      unsubStatus();
+      unsubLocation();
+    };
+  }, [fetchShipments]);
+
+  const handleUpdateStatus = useCallback(async (id: string, newStatus: string) => {
+    const targetConfig = SHIPMENT_STATE_CONFIG[newStatus as ShipmentStatus];
+    if (targetConfig?.confirmVariant) {
+      setConfirmAction({ shipmentId: id, newStatus });
+      return;
+    }
     setUpdatingId(id);
     try {
-      await shipmentService.updateStatus(id, newStatus);
+      await executeCmd(new UpdateStatusCommand(id, newStatus));
       await fetchShipments();
-    } catch (err) {
-      console.error('Error al actualizar estado:', err);
+    } catch {
+      setError('Error al actualizar estado');
     } finally {
       setUpdatingId(null);
     }
-  };
+  }, [executeCmd, fetchShipments]);
 
-  const handleUpdateLocation = async (id: string, newLocation: string) => {
+  const handleConfirmStatus = useCallback(async () => {
+    if (!confirmAction) return;
+    const { shipmentId, newStatus } = confirmAction;
+    setUpdatingId(shipmentId);
+    setConfirmAction(null);
+    try {
+      await executeCmd(new UpdateStatusCommand(shipmentId, newStatus));
+      await fetchShipments();
+    } catch {
+      setError('Error al actualizar estado');
+    } finally {
+      setUpdatingId(null);
+    }
+  }, [confirmAction, executeCmd, fetchShipments]);
+
+  const handleUpdateLocation = useCallback(async (id: string, newLocation: string) => {
     setUpdatingId(id);
     try {
       await shipmentService.updateLocation(id, newLocation);
       await fetchShipments();
-    } catch (err) {
-      console.error('Error al actualizar ubicación:', err);
+    } catch {
+      setError('Error al actualizar ubicación');
     } finally {
       setUpdatingId(null);
     }
-  };
+  }, [fetchShipments]);
 
-  const stats = {
+  const confirmMessage = confirmAction
+    ? `¿Estás seguro de marcar este envío como "${STATUS_LABELS[confirmAction.newStatus]}"?`
+    : '';
+
+  const filtered = shipments.filter((s) => {
+    const matchSearch = s.productName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchStatus = statusFilter === 'ALL' || s.status === statusFilter;
+    return matchSearch && matchStatus;
+  });
+
+  const stats = useMemo(() => ({
     total: shipments.length,
     pending: shipments.filter((s) => s.status === 'PENDING').length,
     transit: shipments.filter((s) => s.status === 'IN_TRANSIT').length,
     delivered: shipments.filter((s) => s.status === 'DELIVERED').length,
     delayed: shipments.filter((s) => s.status === 'DELAYED').length,
-  };
+  }), [shipments]);
 
   if (loading) {
     return (
       <div>
-        <div className="section-header">
-          <h1 className="section-title">Envíos</h1>
-          <p className="section-subtitle">Gestión de envíos en la cadena de suministro</p>
-        </div>
+        <PageHeader title="Envíos" subtitle="Gestión de envíos en la cadena de suministro" />
         <div className="stat-cards">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="skeleton skeleton-card" />
@@ -113,10 +171,7 @@ export function ShipmentsPage() {
   if (error) {
     return (
       <div>
-        <div className="section-header">
-          <h1 className="section-title">Envíos</h1>
-          <p className="section-subtitle">Gestión de envíos en la cadena de suministro</p>
-        </div>
+        <PageHeader title="Envíos" subtitle="Gestión de envíos en la cadena de suministro" />
         <div className="card">
           <p style={{ color: 'var(--danger)' }}>Error: {error}</p>
           <button className="btn btn-primary" onClick={fetchShipments} style={{ marginTop: '1rem' }}>
@@ -129,10 +184,7 @@ export function ShipmentsPage() {
 
   return (
     <div>
-      <div className="section-header">
-        <h1 className="section-title">Envíos</h1>
-        <p className="section-subtitle">Gestión de envíos en la cadena de suministro</p>
-      </div>
+      <PageHeader title="Envíos" subtitle="Gestión de envíos en la cadena de suministro" />
 
       <div className="stat-cards">
         <div className="stat-card">
@@ -157,103 +209,151 @@ export function ShipmentsPage() {
         </div>
       </div>
 
-      <div className="grid-3">
-        <div>
-          <ShipmentCreate onSuccess={fetchShipments} />
+      <div className="card">
+        <div className="card-header">
+          <span className="card-title">Lista de Envíos ({filtered.length})</span>
+          <div className="flex gap-1" style={{ alignItems: 'center' }}>
+            <input
+              className="search-input"
+              type="text"
+              placeholder="Buscar por producto..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <select
+              className="table-select"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="ALL">Todos</option>
+              {STATUS_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>{STATUS_LABELS[opt]}</option>
+              ))}
+            </select>
+            {canUndo && (
+              <button className="btn btn-outline btn-sm" onClick={undoLast} title="Deshacer última operación">
+                ↩ Deshacer
+              </button>
+            )}
+            <button className="btn btn-primary btn-sm" onClick={() => setDrawerOpen(true)}>
+              + Nuevo
+            </button>
+            <button className="btn btn-outline btn-sm" onClick={fetchShipments}>
+              Actualizar
+            </button>
+          </div>
         </div>
 
-        <div>
-          <div className="card">
-            <div className="card-header">
-              <span className="card-title">Lista de Envíos ({shipments.length})</span>
-              <button className="btn btn-primary btn-sm" onClick={fetchShipments}>
-                Actualizar
-              </button>
-            </div>
-
-            {shipments.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-icon">🚚</div>
-                <p className="empty-state-text">
-                  No hay envíos. Crea uno para comenzar.
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-auto">
-                <table className="table-enhanced">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Producto</th>
-                      <th>Recorrido</th>
-                      <th>Ubicación</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {shipments.map((shipment) => (
-                      <tr key={shipment.id}>
-                        <td className="font-mono text-sm">{shipment.id.slice(0, 8)}</td>
-                        <td>
-                          <div className="font-medium text-sm">{shipment.productName}</div>
-                        </td>
-                        <td>
-                          <TrackingProgress status={shipment.status} />
-                          <div className="flex gap-1" style={{ marginTop: '0.25rem' }}>
-                            <select
-                              className="table-select"
-                              value={shipment.status}
-                              onChange={(e) => handleUpdateStatus(shipment.id, e.target.value)}
-                              disabled={updatingId === shipment.id}
-                            >
-                              {STATUS_OPTIONS.map((opt) => (
-                                <option key={opt} value={opt}>
-                                  {STATUS_LABELS[opt]}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        </td>
-                        <td>
-                          <div>{shipment.currentLocation}</div>
+        {filtered.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-state-icon">🚚</div>
+            <p className="empty-state-text">
+              {shipments.length === 0
+                ? 'No hay envíos. Crea uno para comenzar.'
+                : 'No hay envíos que coincidan con los filtros.'}
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-auto">
+            <table className="table-enhanced">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Producto</th>
+                  <th>Recorrido</th>
+                  <th>Ubicación</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((shipment, i) => (
+                  <Fragment key={shipment.id}>
+                    <tr className="row-enter" style={{ animationDelay: `${i * 50}ms` }}>
+                      <td className="font-mono text-sm">{shipment.id.slice(0, 8)}</td>
+                      <td>
+                        <div className="font-medium text-sm">{shipment.productName}</div>
+                      </td>
+                      <td>
+                        <TrackingProgress status={shipment.status} />
+                        <div className="flex gap-1" style={{ marginTop: '0.25rem' }}>
                           <select
                             className="table-select"
-                            value={shipment.currentLocation}
-                            onChange={(e) => handleUpdateLocation(shipment.id, e.target.value)}
+                            value={shipment.status}
+                            onChange={(e) => handleUpdateStatus(shipment.id, e.target.value)}
                             disabled={updatingId === shipment.id}
-                            style={{ marginTop: '0.25rem' }}
                           >
-                            {LOCATION_OPTIONS.map((loc) => (
-                              <option key={loc} value={loc}>{loc}</option>
+                            {STATUS_OPTIONS.map((opt) => (
+                              <option key={opt} value={opt}>
+                                {STATUS_LABELS[opt]}
+                              </option>
                             ))}
                           </select>
-                        </td>
-                        <td>
-                          <button
-                            className="btn btn-outline btn-sm"
-                            onClick={() => setHistoryShipmentId(
-                              historyShipmentId === shipment.id ? null : shipment.id
-                            )}
-                          >
-                            {historyShipmentId === shipment.id ? 'Ocultar' : 'Historial'}
-                          </button>
+                        </div>
+                      </td>
+                      <td>
+                        <div>{shipment.currentLocation}</div>
+                        <select
+                          className="table-select"
+                          value={shipment.currentLocation}
+                          onChange={(e) => handleUpdateLocation(shipment.id, e.target.value)}
+                          disabled={updatingId === shipment.id}
+                          style={{ marginTop: '0.25rem' }}
+                        >
+                          {LOCATION_OPTIONS.map((loc) => (
+                            <option key={loc} value={loc}>{loc}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td>
+                        <button
+                          className="btn btn-outline btn-sm"
+                          onClick={() => setExpandedId(
+                            expandedId === shipment.id ? null : shipment.id
+                          )}
+                        >
+                          {expandedId === shipment.id ? 'Ocultar' : 'Historial'}
+                        </button>
+                      </td>
+                    </tr>
+                    {expandedId === shipment.id && (
+                      <tr className="row-expanded">
+                        <td colSpan={5} style={{ padding: 0 }}>
+                          <div style={{ padding: '1rem 1.5rem' }}>
+                            <ShipmentHistory
+                              shipmentId={shipment.id}
+                              onClose={() => setExpandedId(null)}
+                            />
+                          </div>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    )}
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
           </div>
-
-          {historyShipmentId && (
-            <ShipmentHistory
-              shipmentId={historyShipmentId}
-              onClose={() => setHistoryShipmentId(null)}
-            />
-          )}
-        </div>
+        )}
       </div>
+
+      <ShipmentDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onSuccess={() => {
+          setDrawerOpen(false);
+          fetchShipments();
+        }}
+      />
+
+      <ConfirmDialog
+        open={confirmAction !== null}
+        title="Confirmar cambio de estado"
+        message={confirmMessage}
+        confirmLabel={confirmAction ? STATUS_LABELS[confirmAction.newStatus] : ''}
+        variant={confirmAction ? (SHIPMENT_STATE_CONFIG[confirmAction.newStatus as ShipmentStatus]?.confirmVariant ?? 'primary') : 'primary'}
+        loading={updatingId !== null}
+        onConfirm={handleConfirmStatus}
+        onCancel={() => setConfirmAction(null)}
+      />
     </div>
   );
 }

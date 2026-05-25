@@ -125,8 +125,9 @@ public class SupplyChainFacadeImpl implements SupplyChainFacade {
         );
 
         Dashboard.SensorStats sensorStats = calculateSensorStats(readings);
+        String status = shipment.status();
         List<SensorReadingResult> recentReadings = readings.stream()
-                .map(this::toSensorReadingResult)
+                .map(r -> toSensorReadingResult(r, status))
                 .limit(10)
                 .collect(Collectors.toList());
 
@@ -163,6 +164,10 @@ public class SupplyChainFacadeImpl implements SupplyChainFacade {
     }
 
     private SensorReadingResult toSensorReadingResult(SensorReading reading) {
+        return toSensorReadingResult(reading, null);
+    }
+
+    private SensorReadingResult toSensorReadingResult(SensorReading reading, String shipmentStatus) {
         boolean alert = alertEvaluator.isAnyAlert(reading.temperatureC(), reading.humidityPct());
         return new SensorReadingResult(
                 reading.id(),
@@ -172,7 +177,8 @@ public class SupplyChainFacadeImpl implements SupplyChainFacade {
                 reading.humidityPct(),
                 reading.latitude(),
                 reading.longitude(),
-                alert
+                alert,
+                shipmentStatus
         );
     }
 

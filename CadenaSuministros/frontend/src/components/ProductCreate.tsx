@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import productService from '../api/productService';
 
 interface ProductCreateProps {
@@ -6,84 +6,83 @@ interface ProductCreateProps {
 }
 
 export function ProductCreate({ onSuccess }: ProductCreateProps) {
-  const [formData, setFormData] = useState({
-    sku: '',
-    name: '',
-  });
+  const [sku, setSku] = useState('');
+  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const skuId = useId();
+  const nameId = useId();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!sku.trim() || !name.trim()) return;
     setError(null);
     setLoading(true);
-
     try {
-      await productService.create(formData.sku, formData.name);
-
-      setFormData({
-        sku: '',
-        name: '',
-      });
+      await productService.create(sku.trim(), name.trim());
+      setSku('');
+      setName('');
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al crear');
+      setError(err instanceof Error ? err.message : 'Error al crear producto');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="card">
-      <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem' }}>
-        Crear Nuevo Producto
-      </h3>
+    <form onSubmit={handleSubmit} className="create-product-form">
+      <div className="create-product-header">
+        <span className="create-product-icon">+</span>
+        <div>
+          <div className="create-product-title">Nuevo Producto</div>
+          <div className="create-product-subtitle">Agrega un item al catálogo</div>
+        </div>
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="sku">SKU</label>
+      <div className="create-product-body">
+        <div className="cp-field">
+          <label htmlFor={skuId} className="cp-label">SKU</label>
           <input
-            id="sku"
+            id={skuId}
             type="text"
-            value={formData.sku}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, sku: e.target.value }))
-            }
-            placeholder="SKU-001"
+            value={sku}
+            onChange={e => setSku(e.target.value)}
+            placeholder="Ej: FRESA-001"
             required
+            className="cp-input"
+            autoComplete="off"
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="name">Nombre</label>
+        <div className="cp-field">
+          <label htmlFor={nameId} className="cp-label">Nombre</label>
           <input
-            id="name"
+            id={nameId}
             type="text"
-            value={formData.name}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, name: e.target.value }))
-            }
-            placeholder="Nombre del producto"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="Ej: Fresa Orgánica"
             required
+            className="cp-input"
+            autoComplete="off"
           />
         </div>
 
-        {error && (
-          <div style={{ color: 'var(--danger)', marginBottom: '1rem' }}>
-            {error}
-          </div>
-        )}
+        {error && <div className="cp-error">{error}</div>}
 
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={loading}
-          style={{ width: '100%' }}
-        >
-          {loading ? 'Creando...' : 'Crear Producto'}
+        <button type="submit" className="cp-submit" disabled={loading || !sku.trim() || !name.trim()}>
+          {loading ? (
+            <span className="cp-submit-loading">
+              <span className="cp-spinner" />
+              Creando...
+            </span>
+          ) : (
+            'Crear Producto'
+          )}
         </button>
-      </form>
-    </div>
+      </div>
+    </form>
   );
 }
 

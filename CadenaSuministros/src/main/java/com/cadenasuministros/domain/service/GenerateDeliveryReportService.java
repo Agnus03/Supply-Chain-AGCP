@@ -1,5 +1,6 @@
 package com.cadenasuministros.domain.service;
 
+import com.cadenasuministros.domain.event.DeliveryReportGeneratedEvent;
 import com.cadenasuministros.domain.model.DeliveryReport;
 import com.cadenasuministros.domain.model.SensorReading;
 import com.cadenasuministros.domain.model.Shipment;
@@ -7,6 +8,8 @@ import com.cadenasuministros.domain.port.in.GenerateDeliveryReportUseCase;
 import com.cadenasuministros.domain.port.out.DeliveryReportRepository;
 import com.cadenasuministros.domain.port.out.SensorReadingRepository;
 import com.cadenasuministros.domain.port.out.ShipmentRepository;
+
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.Instant;
 import java.util.DoubleSummaryStatistics;
@@ -19,15 +22,18 @@ public class GenerateDeliveryReportService implements GenerateDeliveryReportUseC
     private final SensorReadingRepository sensorReadingRepository;
     private final DeliveryReportRepository deliveryReportRepository;
     private final AlertEvaluator alertEvaluator;
+    private final ApplicationEventPublisher eventPublisher;
 
     public GenerateDeliveryReportService(ShipmentRepository shipmentRepository,
                                          SensorReadingRepository sensorReadingRepository,
                                          DeliveryReportRepository deliveryReportRepository,
-                                         AlertEvaluator alertEvaluator) {
+                                         AlertEvaluator alertEvaluator,
+                                         ApplicationEventPublisher eventPublisher) {
         this.shipmentRepository = shipmentRepository;
         this.sensorReadingRepository = sensorReadingRepository;
         this.deliveryReportRepository = deliveryReportRepository;
         this.alertEvaluator = alertEvaluator;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -73,7 +79,9 @@ public class GenerateDeliveryReportService implements GenerateDeliveryReportUseC
                 .observations(buildObservations(tempAlert, humAlert, readings.isEmpty()))
                 .build();
 
-        return deliveryReportRepository.save(report);
+        DeliveryReport saved = deliveryReportRepository.save(report);
+        eventPublisher.publishEvent(new DeliveryReportGeneratedEvent(saved));
+        return saved;
     }
 
     private String buildObservations(boolean tempAlert, boolean humAlert, boolean noReadings) {

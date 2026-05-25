@@ -8,6 +8,17 @@ export interface Shipment {
 
 export type ShipmentStatus = 'PENDING' | 'IN_TRANSIT' | 'DELIVERED' | 'DELAYED';
 
+export interface ShipmentStateConfig {
+  status: ShipmentStatus;
+  label: string;
+  color: string;
+  colorVar: string;
+  allowedTransitions: ShipmentStatus[];
+  isTerminal: boolean;
+  badgeClass: string;
+  confirmVariant: 'primary' | 'danger' | null;
+}
+
 export interface Product {
   id: string;
   sku: string;
@@ -77,6 +88,7 @@ export interface SensorReadingResult {
   latitude: number | null;
   longitude: number | null;
   alert: boolean;
+  status: string;
 }
 
 export interface Dashboard {
@@ -158,4 +170,75 @@ export interface DashboardAlert {
   acknowledged: boolean;
   temperatureC: number | null;
   humidityPct: number | null;
+}
+
+export interface InventoryItem {
+  id: string;
+  productId: string;
+  quantity: number;
+  minStock: number;
+  warehouse: string;
+  lastUpdated: string;
+}
+
+export interface StockMovement {
+  id: string;
+  productId: string;
+  type: string;
+  quantity: number;
+  reference: string | null;
+  notes: string | null;
+  timestamp: string;
+}
+
+export interface QualityCheckpoint {
+  id: string;
+  shipmentId: string;
+  location: string;
+  temperatureC: number | null;
+  humidityPct: number | null;
+  passed: boolean;
+  notes: string | null;
+  inspector: string | null;
+  timestamp: string;
+}
+
+export interface ShippingCost {
+  id: string;
+  shipmentId: string;
+  baseRate: number;
+  distanceKm: number;
+  distanceCost: number;
+  extraCharges: number;
+  totalCost: number;
+  currency: string;
+  calculatedAt: string;
+  strategyName: string;
+}
+
+export interface RouteInfo {
+  origin: string;
+  destination: string;
+  distanceKm: number;
+  estimatedHours: number;
+  estimatedArrival: string;
+}
+
+export interface ProductDashboard {
+  productName: string;
+  totalShipments: number;
+  pendingShipments: number;
+  transitShipments: number;
+  deliveredShipments: number;
+  delayedShipments: number;
+  totalReadings: number;
+  averageTemperature: number;
+  averageHumidity: number;
+}
+
+export type SortDirection = 'asc' | 'desc';
+
+export interface SortConfig<T> {
+  key: keyof T;
+  direction: SortDirection;
 }
